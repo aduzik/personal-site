@@ -12,6 +12,7 @@ export type PageData = {
     frontmatter: PageFrontmatter;
     filePath: string;
     content: string;
+    excerpt?: string;
 };
 
 async function getPageData() {
@@ -33,12 +34,16 @@ async function getPageData() {
             flag: "r",
         });
 
-        const frontmatter = matter(fileContent);
+        const frontmatter = matter(fileContent, {
+            excerpt: true,
+            excerpt_separator: "{/* excerpt */}",
+        });
 
         pageData.push({
             frontmatter: frontmatter.data as PageFrontmatter,
             filePath,
             content: frontmatter.content,
+            excerpt: frontmatter.excerpt,
         });
     }
 
