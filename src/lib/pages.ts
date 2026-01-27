@@ -1,21 +1,21 @@
 import path from "path";
 import fs from "fs/promises";
 import matter from "gray-matter";
-import { } from '@mdx-js/react';
+import {} from "@mdx-js/react";
 
 export type PageFrontmatter = {
     title: string;
     slug: string;
-}
+};
 
 export type PageData = {
-    frontmatter: PageFrontmatter
+    frontmatter: PageFrontmatter;
     filePath: string;
     content: string;
-}
+};
 
 async function getPageData() {
-    const contentDir = path.resolve(process.cwd(), 'src/page-content')
+    const contentDir = path.resolve(process.cwd(), "src/page-content");
     const mdxFilePaths = await fs.readdir(contentDir, {
         recursive: true,
         withFileTypes: true,
@@ -23,14 +23,14 @@ async function getPageData() {
 
     const pageData: PageData[] = [];
 
-    for (const entry of mdxFilePaths.filter(e => e.isFile())) {
+    for (const entry of mdxFilePaths.filter((e) => e.isFile())) {
         const isMDX = /\.mdx?$/.test(entry.name);
         if (!isMDX) continue;
 
         const filePath = path.join(entry.parentPath, entry.name);
         const fileContent = await fs.readFile(filePath, {
-            encoding: 'utf-8',
-            flag: 'r',
+            encoding: "utf-8",
+            flag: "r",
         });
 
         const frontmatter = matter(fileContent);
@@ -48,7 +48,7 @@ async function getPageData() {
 const pageData = await getPageData();
 
 export function findBySlug(slug: string) {
-    return pageData.find(page => page.frontmatter.slug === slug);
+    return pageData.find((page) => page.frontmatter.slug === slug);
 }
 
 export default pageData;

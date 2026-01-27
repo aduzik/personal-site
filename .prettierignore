@@ -18,3 +18,5 @@ yarn-error.log*
 .pnpm-debug.log*
 .vercel
 .husky
+.vscode
+package-lock.json
