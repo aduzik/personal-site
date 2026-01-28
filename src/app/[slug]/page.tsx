@@ -1,11 +1,12 @@
-import { findBySlug, getAllPageData } from "@/lib/pages";
-import { getPageMetadata } from "@/lib/siteData";
+import * as runtime from "react/jsx-runtime";
+import { evaluate } from "@mdx-js/mdx";
 import { Metadata } from "next";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
-import { evaluate } from "@mdx-js/mdx";
-import * as runtime from "react/jsx-runtime";
+
+import { findBySlug, getAllPageData } from "@/lib/pages";
+import { getPageMetadata } from "@/lib/siteData";
 
 export const dynamicParams = false;
 
