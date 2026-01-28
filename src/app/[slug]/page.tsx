@@ -9,16 +9,12 @@ import PageHeader from "../components/pageheader";
 
 export const dynamicParams = false;
 
-type Props = {
-  params: Promise<RouteData>;
-};
-
 type RouteData = {
   slug: string;
 };
 
 export async function generateStaticParams() {
-  const pageData = getAllPageData();
+  const pageData = getAllPageData(true);
   return pageData.map(
     ({ frontmatter: { slug } }) =>
       ({
@@ -27,14 +23,15 @@ export async function generateStaticParams() {
   );
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/[slug]">): Promise<Metadata> {
   const { slug } = await params;
+  console.log("slug", slug);
   const pageData = findBySlug(slug)!;
 
   return getPageMetadata(pageData.frontmatter.title);
 }
 
-export default async function Page({ params }: Props) {
+export default async function Page({ params }: PageProps<"/[slug]">) {
   const { slug } = await params;
   const pageData = findBySlug(slug)!;
 

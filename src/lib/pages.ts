@@ -131,7 +131,10 @@ export function findBySlug(slug: string) {
   return slugMap[slug];
 }
 
-export function getAllPageData() {
+export function getAllPageData(excludeIndex: boolean = true) {
+  if (excludeIndex) {
+    return pageData.filter((page) => page.frontmatter.slug !== "index");
+  }
   return pageData;
 }
 
