@@ -1,1 +1,46 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant link-external {
+  &[href^="http"] {
+    @slot;
+  }
+}
+
+@utility link-arrow {
+  &:after {
+    @apply ml-0.5 inline-block content-['↗'];
+  }
+
+  &:hover:after {
+    @apply translate-x-1 -translate-y-1 transition-transform;
+  }
+}
+
+@utility content-container {
+  & {
+    @apply mx-auto px-4 md:w-lg lg:w-3xl;
+  }
+}
+
+.prose code {
+  &:before {
+    content: "";
+  }
+  &:after {
+    content: "";
+  }
+}
+
+.prose .footnotes {
+  @apply mt-8 border-t border-neutral-300 pt-4;
+}
+
+.prose .data-footnote-backref {
+  @apply inline-block;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Segoe UI Symbol";
+
+  &:hover {
+    @apply rotate-90 no-underline transition-transform;
+  }
+}

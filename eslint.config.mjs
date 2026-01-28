@@ -23,6 +23,12 @@ const eslintConfig = defineConfig([
                 config: path.join(process.cwd(), "tailwind.config.mjs"),
             },
         },
+        rules: {
+            'tailwindcss/no-custom-classname': {
+                severity: 'warn',
+                'whitelist': ['content-container']
+            },
+        }
     },
     {
         plugins: {
