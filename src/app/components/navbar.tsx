@@ -13,6 +13,7 @@ import {
   useTransitionStatus,
 } from "@floating-ui/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 
 export type NavBarProps = {
@@ -156,13 +157,13 @@ export default function NavBar({ headerRef }: NavBarProps) {
       >
         <ul className="block md:flex md:flex-row md:gap-x-1">
           <li>
-            <NavBarLink to="/articles" text="Articles" tooltipContent="Read my latest articles" />
+            <NavBarLink href="/articles" text="Articles" tooltipContent="Read my latest articles" />
           </li>
           <li>
-            <NavBarLink to="/about" text="About" tooltipContent="Learn more about me" />
+            <NavBarLink href="/about" text="About" tooltipContent="Learn more about me" />
           </li>
           <li>
-            <NavBarLink to="/contact" text="Contact" tooltipContent="Get in touch with me" />
+            <NavBarLink href="/contact" text="Contact" tooltipContent="Get in touch with me" />
           </li>
         </ul>
       </nav>
@@ -180,12 +181,12 @@ export default function NavBar({ headerRef }: NavBarProps) {
 }
 
 type NavBarLinkProps = {
-  to: string;
+  href: string;
   text: string;
   tooltipContent?: React.ReactNode;
 };
 
-function NavBarLink({ to, text, tooltipContent }: NavBarLinkProps) {
+function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
   const [open, setOpen] = useState(false);
   const arrowRef = React.useRef<SVGSVGElement>(null);
   const { responsive } = useContext(NavBarContext);
@@ -220,6 +221,9 @@ function NavBarLink({ to, text, tooltipContent }: NavBarLinkProps) {
     duration: 150,
   });
 
+  const pathname = usePathname();
+  const isActive = pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+
   return (
     <span
       className={[
@@ -231,15 +235,18 @@ function NavBarLink({ to, text, tooltipContent }: NavBarLinkProps) {
       {...getReferenceProps()}
     >
       <Link
-        href={to}
-        // getProps={({ isCurrent, isPartiallyCurrent }) => ({
-        //     'aria-current':
-        //         isCurrent || isPartiallyCurrent ? 'true' : undefined,
-        // })}
+        href={href}
         className="group"
-        // partiallyActive
+        aria-current={isActive ? "true" : undefined}
+        aria-expanded={open ? "true" : undefined}
       >
-        <span className="relative inline-block py-2 text-emerald-700 after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:scale-x-0 after:bg-emerald-600 after:content-[''] group-hover:after:scale-x-100 group-hover:after:transition-transform group-hover:after:duration-300">
+        <span
+          className={[
+            "relative inline-block py-2 text-emerald-700",
+            "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:scale-x-0 after:bg-emerald-600 after:content-['']",
+            "group-hover:after:scale-x-100 group-hover:after:transition-transform group-hover:after:duration-300 group-aria-[expanded]:after:scale-x-100 group-aria-[expanded]:after:opacity-100",
+          ].join(" ")}
+        >
           <span
             className={
               "inline-block text-center group-aria-[current]:font-semibold after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:content-[attr(data-content)]"
