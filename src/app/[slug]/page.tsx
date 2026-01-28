@@ -1,7 +1,11 @@
-import pageData, { findBySlug } from "@/lib/pages";
+import { findBySlug, getAllPageData } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 import { Metadata } from "next";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import { evaluate } from "@mdx-js/mdx";
+import * as runtime from "react/jsx-runtime";
 
 export const dynamicParams = false;
 
@@ -14,6 +18,7 @@ type RouteData = {
 };
 
 export async function generateStaticParams() {
+    const pageData = getAllPageData();
     return pageData.map(
         ({ frontmatter: { slug } }) =>
             ({
@@ -33,11 +38,17 @@ export default async function Page({ params }: Props) {
     const { slug } = await params;
     const pageData = findBySlug(slug)!;
 
+    const { default: Content } = await evaluate(pageData.content, {
+        ...runtime,
+        remarkPlugins: [remarkGfm, remarkMath],
+        rehypePlugins: [rehypeKatex],
+    });
+
     return (
         <div>
             <h1>{pageData.frontmatter.title}</h1>
             {pageData.excerpt && <p>Excerpt: {pageData.excerpt}</p>}
-            <MDXRemote source={pageData.content} />
+            <Content />
         </div>
     );
 }
