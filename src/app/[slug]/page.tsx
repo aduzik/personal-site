@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
 
-import formatContent from "@/lib/markdown";
+import formatContent, { defaultComponents } from "@/lib/markdown";
 import { findBySlug, getAllPageData } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
@@ -25,7 +25,6 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  console.log("slug", slug);
   const pageData = findBySlug(slug)!;
 
   return getPageMetadata(pageData.frontmatter.title);
@@ -35,7 +34,9 @@ export default async function Page({ params }: PageProps<"/[slug]">) {
   const { slug } = await params;
   const pageData = findBySlug(slug)!;
 
-  const Content = await formatContent(pageData.content);
+  const Content = await formatContent(pageData.content, {
+    filePath: pageData.filePath,
+  });
 
   const heroImage =
     pageData.frontmatter.heroImage ?
@@ -47,7 +48,7 @@ export default async function Page({ params }: PageProps<"/[slug]">) {
       <PageHeader title={pageData.frontmatter.title} heroImage={heroImage} />
       <main className="content-container">
         <div className="prose prose-neutral prose-headings:font-serif prose-h1:text-neutral-700 prose-a:text-emerald-600 prose-a:after:inline-block prose-a:link-external:link-arrow prose-a:after:text-xs prose-a:no-underline prose-a:hover:underline mx-auto max-w-none md:w-lg lg:w-3xl">
-          <Content />
+          <Content components={defaultComponents} />
         </div>
       </main>
     </article>

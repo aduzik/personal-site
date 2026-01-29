@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
+import url from "url";
 import matter from "gray-matter";
 
 export type PageFrontmatter = {
@@ -12,6 +13,7 @@ export type PageData = {
   frontmatter: PageFrontmatter;
   filePath: string;
   relativePath: string;
+  baseUrl: string;
   content: string;
   excerpt?: string;
 };
@@ -58,6 +60,7 @@ async function getPageData(relativePath: string) {
     frontmatter: pageFrontmatter,
     filePath,
     relativePath,
+    baseUrl: url.pathToFileURL(filePath).href,
     content,
     excerpt,
   };

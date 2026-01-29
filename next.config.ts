@@ -1,3 +1,5 @@
+import path from "path";
+import CopyPlugin from "copy-webpack-plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -16,6 +18,31 @@ const nextConfig: NextConfig = {
     nextImageExportOptimizer_exportFolderName: "nextImageExportOptimizer",
     nextImageExportOptimizer_generateAndUseBlurImages: "true",
     nextImageExportOptimizer_remoteImageCacheTTL: "0",
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins.push(
+        new CopyPlugin({
+          patterns: [
+            {
+              from: path.resolve(process.cwd(), "src/page-content"),
+              to: path.resolve(process.cwd(), "public/images/page-content"),
+              globOptions: {
+                ignore: ["**/*.md", "**/*.mdx"],
+              },
+            },
+          ],
+        }),
+      );
+    }
+    // config.module.rules.push({
+    //   test: /\.(png|jpe?g|gif|webp|avif|svg)$/i,
+    //   type: "asset/resource",
+    //   generator: {
+    //     filename: "images/[name]-[hash][ext]",
+    //   },
+    // });
+    return config;
   },
 };
 
