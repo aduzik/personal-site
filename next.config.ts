@@ -26,8 +26,8 @@ const nextConfig: NextConfig = {
         new CopyPlugin({
           patterns: [
             {
-              from: path.resolve(process.cwd(), "src/page-content"),
-              to: path.resolve(process.cwd(), "public/images/page-content"),
+              from: path.resolve(process.cwd(), "content"),
+              to: path.resolve(process.cwd(), "public/images/content"),
               globOptions: {
                 ignore: ["**/*.md", "**/*.mdx"],
               },

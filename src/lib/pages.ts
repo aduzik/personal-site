@@ -30,7 +30,7 @@ const pageDataMap: PageDataMap = {};
 const slugMap: SlugMap = {};
 const pageData: PageData[] = [];
 
-const contentPath = path.resolve(process.cwd(), "src/page-content");
+const contentPath = path.resolve(process.cwd(), "content/pages");
 
 async function getPageData(relativePath: string) {
   const filePath = path.join(contentPath, relativePath);
@@ -100,7 +100,7 @@ async function startWatching() {
         break;
       }
     }
-    console.log("Page content changed, rebuilding...", event);
+    console.log("Page content changed, rebuilding...");
   }
 }
 

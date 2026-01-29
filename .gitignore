@@ -17,7 +17,7 @@
 /.next/
 /out/
 /public/images/nextImageExportOptimizer/
-/public/images/page-content/
+/public/images/content/
 
 # production
 /build

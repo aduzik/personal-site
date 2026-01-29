@@ -38,14 +38,14 @@ function addLeadClass(options: { className?: string }) {
   };
 }
 
-function resolveImageSrc(options: { filePath: string; contentRoot: string }) {
+function resolveImageSrc(options: { filePath: string; root: string }) {
   return (tree: MdRoot) => {
     visit(tree, "image", (node) => {
       const src = node.url;
 
       if (!src.startsWith("http")) {
         const absoluteSrcPath = path.resolve(path.dirname(options.filePath), src);
-        const relativeSrcPath = path.relative(options.contentRoot, absoluteSrcPath);
+        const relativeSrcPath = path.relative(options.root, absoluteSrcPath);
 
         node.url = relativeSrcPath;
 
@@ -74,7 +74,7 @@ export default async function formatContent(content: string, options: FormatCont
   const { default: Content } = await evaluate(content, {
     ...runtime,
     baseUrl: url.pathToFileURL(filePath).href,
-    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { filePath, contentRoot }]],
+    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { filePath, root }]],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, { behavior: "append" }],
