@@ -32,7 +32,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   href="https://medium.com/@robertloerzel/the-story-of-chicagos-four-star-city-flag-4042dc579cb2"
                   title="Chicago"
                 >
-                  <ExportedImage src={chicagoFlag} alt="Chicago Flag" height={12} width={36} className="inline-block" />
+                  <ExportedImage
+                    src={chicagoFlag}
+                    alt="Chicago Flag"
+                    height={24}
+                    width={36}
+                    className="inline-block"
+                    preload
+                    placeholder="empty"
+                  />
                 </Link>
               </div>
             </div>

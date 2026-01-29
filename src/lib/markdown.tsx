@@ -8,9 +8,11 @@ import type { Root as MdRoot } from "mdast";
 import { MDXComponents, MDXContent } from "mdx/types";
 import ExportedImage from "next-image-export-optimizer";
 import { StaticImageData } from "next/image";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeCallouts from "rehype-callouts";
 import rehypeKatex from "rehype-katex";
 import rehypePrismPlus from "rehype-prism-plus";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSmartypants from "remark-smartypants";
@@ -74,6 +76,8 @@ export default async function formatContent(content: string, options: FormatCont
     baseUrl: url.pathToFileURL(filePath).href,
     remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { filePath, contentRoot }]],
     rehypePlugins: [
+      rehypeSlug,
+      [rehypeAutolinkHeadings, { behavior: "append" }],
       rehypeKatex,
       addLeadClass,
       rehypeFigure,
