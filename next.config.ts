@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
     nextImageExportOptimizer_generateAndUseBlurImages: "true",
     nextImageExportOptimizer_remoteImageCacheTTL: "0",
   },
+  serverExternalPackages: ["remark-prism"],
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins.push(

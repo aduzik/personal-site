@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "prismjs/themes/prism-tomorrow.css";
+@import "rehype-callouts/theme/github";
 @plugin "@tailwindcss/typography";
 
 @custom-variant link-external {

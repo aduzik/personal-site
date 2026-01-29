@@ -2,14 +2,18 @@ import path from "path";
 import url from "url";
 import * as runtime from "react/jsx-runtime";
 import { evaluate } from "@mdx-js/mdx";
+import rehypeFigure from "@microflash/rehype-figure";
 import type { Root } from "hast";
 import type { Root as MdRoot } from "mdast";
 import { MDXComponents, MDXContent } from "mdx/types";
 import ExportedImage from "next-image-export-optimizer";
 import { StaticImageData } from "next/image";
+import rehypeCallouts from "rehype-callouts";
 import rehypeKatex from "rehype-katex";
+import rehypePrismPlus from "rehype-prism-plus";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
+import remarkSmartypants from "remark-smartypants";
 import { visit } from "unist-util-visit";
 
 function addLeadClass(options: { className?: string }) {
@@ -68,8 +72,14 @@ export default async function formatContent(content: string, options: FormatCont
   const { default: Content } = await evaluate(content, {
     ...runtime,
     baseUrl: url.pathToFileURL(filePath).href,
-    remarkPlugins: [remarkGfm, remarkMath, [resolveImageSrc, { filePath, contentRoot }]],
-    rehypePlugins: [rehypeKatex, addLeadClass],
+    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { filePath, contentRoot }]],
+    rehypePlugins: [
+      rehypeKatex,
+      addLeadClass,
+      rehypeFigure,
+      [rehypePrismPlus, { showLineNumbers: true }],
+      [rehypeCallouts, { theme: "github" }],
+    ],
   });
 
   return Content;
