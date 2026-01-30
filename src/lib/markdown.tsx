@@ -1,6 +1,7 @@
 import path from "path";
 import url from "url";
 import * as runtime from "react/jsx-runtime";
+import YouTube from "@/app/components/youtube";
 import { evaluate } from "@mdx-js/mdx";
 import rehypeFigure from "@microflash/rehype-figure";
 import type { Root } from "hast";
@@ -103,4 +104,11 @@ export const defaultComponents: MDXComponents = {
     return <ExportedImage {...imageProps} />;
   },
   ExportedImage,
+  YouTube: (props) => (
+    <div className="text-center">
+      <div className="inline-block aspect-video overflow-clip rounded-lg shadow-xl shadow-neutral-600/50">
+        <YouTube {...props} />
+      </div>
+    </div>
+  ),
 };

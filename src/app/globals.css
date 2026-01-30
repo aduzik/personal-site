@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "prismjs/themes/prism-tomorrow.css";
 @import "rehype-callouts/theme/github";
+@import "katex/dist/katex.min.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant link-external {
@@ -16,6 +17,26 @@
 
   &:hover:after {
     @apply translate-x-1 -translate-y-1 transition-transform;
+  }
+}
+
+@utility link-forward {
+  &:after {
+    @apply ml-0.5 inline-block content-['→'];
+  }
+
+  &:hover:after {
+    @apply translate-x-1 transition-transform;
+  }
+}
+
+@utility link-backward {
+  &:before {
+    @apply mr-0.5 inline-block content-['←'];
+  }
+
+  &:hover:before {
+    @apply -translate-x-1 transition-transform;
   }
 }
 
@@ -45,4 +66,8 @@
   &:hover {
     @apply rotate-90 no-underline transition-transform;
   }
+}
+
+.katex {
+  @apply text-lg;
 }

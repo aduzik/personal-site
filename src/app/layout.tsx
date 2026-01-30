@@ -20,7 +20,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
-          <main className="grow">{children}</main>
+          <main className="grow flex flex-col">{children}</main>
           <footer className="mt-auto pt-8">
             <div className="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600">
               <div>

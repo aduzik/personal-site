@@ -1,0 +1,88 @@
+import PageHeader from "@/app/components/pageheader";
+import ExportedImage from "next-image-export-optimizer";
+import Link from "next/link";
+
+import { getAllPosts } from "@/lib/pages";
+
+import articlesHero from "/public/images/articles.jpg";
+
+export const dynamicParams = false;
+
+const pageSize = 1;
+
+async function getPageNumber(params: PageProps<"/articles/[[...page]]">["params"]): Promise<number | null> {
+  const { page: pageParam } = await params;
+
+  if (typeof pageParam === "undefined") return 1;
+  if (pageParam.length !== 1) return null;
+
+  const currentPage = parseInt(pageParam[0]);
+  return isNaN(currentPage) ? null : currentPage;
+}
+
+export default async function ArticleListPage({ params }: PageProps<"/articles/[[...page]]">) {
+  const currentPage = await getPageNumber(params);
+  console.log("Articles list page params:", await params, { currentPage });
+  if (!currentPage) return null;
+
+  const posts = getAllPosts();
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedPosts = posts.slice(startIndex, endIndex);
+
+  console.log("Rendering articles page", {
+    currentPage,
+    startIndex,
+    endIndex,
+    paginatedPostsLength: paginatedPosts.length,
+  });
+
+  return (
+    <section className="flex flex-col grow">
+      <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill />} />
+      <div className="content-container flex flex-col grow justify-between">
+        <main>
+          {paginatedPosts.map((post) => (
+            <article key={post.frontmatter.slug} className="mb-8">
+              <h2 className="text-2xl font-bold mb-2 font-serif">
+                <a href={`/articles/${post.frontmatter.slug}`} className="text-emerald-700 hover:underline">
+                  {post.frontmatter.title}
+                </a>
+              </h2>
+              <p className="text-gray-600 text-sm mb-4">{new Date(post.frontmatter.date).toLocaleDateString()}</p>
+              <p>{post.excerpt}</p>
+            </article>
+          ))}
+          {/* Pagination Controls */}
+        </main>
+        <footer className="flex justify-between mt-8">
+          {currentPage > 1 ?
+            <Link
+              href={`/articles${currentPage > 2 ? `?p=${currentPage - 1}` : ""}`}
+              className={[
+                "text-emerald-700 hover:underline",
+                "before:content-['«'] before:inline-block before:mr-1",
+                "hover:before:-translate-x-1 hover:before:transition-transform",
+              ].join(" ")}
+            >
+              Newer Posts
+            </Link>
+          : <div />}
+          {endIndex < posts.length ?
+            <Link
+              href={`/articles/${currentPage + 1}`}
+              className={[
+                "text-emerald-700 hover:underline",
+                "after:content-['»'] after:inline-block after:ml-1",
+                "hover:after:translate-x-1 hover:after:transition-transform",
+              ].join(" ")}
+            >
+              Older Posts
+            </Link>
+          : <div />}
+        </footer>
+      </div>
+    </section>
+  );
+}

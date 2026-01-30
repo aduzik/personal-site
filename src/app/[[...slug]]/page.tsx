@@ -2,37 +2,53 @@ import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
 
 import formatContent, { defaultComponents } from "@/lib/markdown";
-import { findBySlug, getAllPageData } from "@/lib/pages";
+import { findBySlug, getAllPages } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
 import PageHeader from "../components/pageheader";
 
 export const dynamicParams = false;
 
-type RouteData = {
-  slug: string;
-};
-
 export async function generateStaticParams() {
-  const pageData = getAllPageData(true);
-  return pageData.map(
-    ({ frontmatter: { slug } }) =>
-      ({
-        slug,
-      }) satisfies RouteData,
+  const pageData = getAllPages(false);
+
+  const staticParams = pageData.map(({ frontmatter: { slug } }) => ({
+    slug: slug === "index" ? [] : [slug],
+  }));
+
+  console.log("Generating static params for pages:", staticParams);
+
+  return staticParams;
+}
+
+async function getPageSlug(params: PageProps<"/[[...slug]]">["params"]): Promise<string | null> {
+  const { slug } = await params;
+
+  return (
+    typeof slug === "undefined" ? "index"
+    : slug.length === 1 ? slug[0]
+    : null
   );
 }
 
-export async function generateMetadata({ params }: PageProps<"/[slug]">): Promise<Metadata> {
-  const { slug } = await params;
-  const pageData = findBySlug(slug)!;
+export async function generateMetadata({ params }: PageProps<"/[[...slug]]">): Promise<Metadata> {
+  const slug = await getPageSlug(params);
 
-  return getPageMetadata(pageData.frontmatter.title);
+  let title: string | undefined = undefined;
+  if (slug) {
+    const pageData = findBySlug("pages", slug)!;
+    title = pageData.frontmatter.title;
+  }
+
+  return getPageMetadata(title);
 }
 
-export default async function Page({ params }: PageProps<"/[slug]">) {
-  const { slug } = await params;
-  const pageData = findBySlug(slug)!;
+export default async function Page({ params }: PageProps<"/[[...slug]]">) {
+  const slug = await getPageSlug(params);
+  console.log("Generating metadata for slug:", slug, await params);
+  if (!slug) return null;
+
+  const pageData = findBySlug("pages", slug)!;
 
   const Content = await formatContent(pageData.content, {
     filePath: pageData.filePath,
