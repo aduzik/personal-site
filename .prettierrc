@@ -1,12 +1,19 @@
 {
-    "plugins": ["prettier-plugin-tailwindcss", "@ianvs/prettier-plugin-sort-imports"],
-    "experimentalTernaries": true,
-    "tabWidth": 2,
-    "printWidth": 120,
-    "trailingComma": "all",
-    "proseWrap": "always",
-    "quoteProps": "as-needed",
-    "importOrder": ["^react(.*)$", "<THIRD_PARTY_MODULES>", "", "^@/components/(.*)$", "^@/lib/(.*)$", "", "^[./]"],
-    "importOrderSeparation": true,
-    "importOrderSortSpecifiers": true
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+  "experimentalTernaries": true,
+  "tabWidth": 2,
+  "printWidth": 120,
+  "trailingComma": "all",
+  "proseWrap": "always",
+  "quoteProps": "as-needed",
+  "importOrder": [
+    "^react(.*)$",
+    "^(@[^/]+)?remark-(.*)$",
+    "^(@[^/]+)?rehype-(.*)$",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/(.*)$",
+    "",
+    "^[./]"
+  ]
 }

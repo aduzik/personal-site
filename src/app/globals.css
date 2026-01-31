@@ -46,6 +46,29 @@
   }
 }
 
+@utility list-depth {
+  & {
+    --depth: 0;
+    --list-depth: 0;
+    --list-item-depth: 0;
+  }
+
+  ul,
+  ol {
+    --list-depth: calc(var(--list-item-depth) + 1);
+  }
+
+  li {
+    --list-item-depth: calc(var(--list-depth));
+  }
+
+  ul,
+  ol,
+  li {
+    --depth: calc(max(var(--list-depth), var(--list-item-depth)));
+  }
+}
+
 .prose code {
   &:before {
     content: "";

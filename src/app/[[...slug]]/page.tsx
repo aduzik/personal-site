@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
 
-import formatContent, { defaultComponents } from "@/lib/markdown";
+import { importImage } from "@/lib/images";
+import formatContent from "@/lib/markdown";
 import { findBySlug, getAllPages } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
@@ -15,8 +16,6 @@ export async function generateStaticParams() {
   const staticParams = pageData.map(({ frontmatter: { slug } }) => ({
     slug: slug === "index" ? [] : [slug],
   }));
-
-  console.log("Generating static params for pages:", staticParams);
 
   return staticParams;
 }
@@ -45,7 +44,6 @@ export async function generateMetadata({ params }: PageProps<"/[[...slug]]">): P
 
 export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   const slug = await getPageSlug(params);
-  console.log("Generating metadata for slug:", slug, await params);
   if (!slug) return null;
 
   const pageData = findBySlug("pages", slug)!;
@@ -54,10 +52,13 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
     filePath: pageData.filePath,
   });
 
-  const heroImage =
-    pageData.frontmatter.heroImage ?
-      <ExportedImage src={pageData.frontmatter.heroImage} alt="Hero Image" className="my-4 rounded-md" fill />
-    : null;
+  let heroImage: React.ReactNode | null = null;
+  if (pageData.frontmatter.heroImage) {
+    const image = await importImage(pageData.frontmatter.heroImage, pageData.filePath);
+    if (image) {
+      heroImage = <ExportedImage src={image} className="my-4 rounded-md" alt="Hero Image" fill />;
+    }
+  }
 
   return (
     <article>
@@ -67,10 +68,10 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
           className={[
             "prose prose-neutral prose-headings:font-serif prose-emerald prose-a:after:inline-block prose-a:link-external:link-arrow prose-a:after:text-xs prose-a:no-underline prose-a:hover:underline mx-auto max-w-none md:w-lg lg:w-3xl",
             "prose-img:in-prose-figure:rounded prose-img:in-prose-figure:shadow-lg prose-img:in-prose-figure:shadow-neutral-500/50",
-            "[counter-reset:figure] prose-figcaption:[counter-increment:figure] prose-figcaption:before:content-['Figure_'counter(figure)'._'] prose-figcaption:before:font-semibold",
+            "prose-figcaption:[counter-increment:figure] prose-figcaption:before:content-['Figure_'counter(figure)'._'] prose-figcaption:before:font-semibold [counter-reset:figure]",
           ].join(" ")}
         >
-          <Content components={defaultComponents} />
+          <Content />
         </div>
       </main>
     </article>
