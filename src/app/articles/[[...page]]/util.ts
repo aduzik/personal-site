@@ -18,3 +18,9 @@ export function getArticleSlug(pageParam: string[] | undefined): string | null {
   const slug = pageParam[0];
   return isNaN(parseInt(slug)) ? slug : null;
 }
+
+export const dateFormat = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});

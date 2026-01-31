@@ -8,11 +8,7 @@ import Link from "next/link";
 import formatContent, { defaultComponents } from "@/lib/markdown";
 import { findPostsBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
 
-const dateFormat = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+import { dateFormat } from "../util";
 
 export default async function ArticlePage({ params }: PageProps<"/articles/[[...page]]">) {
   const { page } = await params;
@@ -45,9 +41,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
   return (
     <article className="grow flex flex-col">
       <PageHeader title={post.frontmatter.title} heroImage={heroImage}>
-        <p className="text-sm text-gray-600 text-shadow-xs text-shadow-white">
-          Published on {dateFormat.format(new Date(post.frontmatter.date))}
-        </p>
+        <p className="text-sm ">Published on {dateFormat.format(new Date(post.frontmatter.date))}</p>
       </PageHeader>
       <main className="content-container grow">
         <Prose>

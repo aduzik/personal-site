@@ -4,11 +4,12 @@ import Link from "next/link";
 
 import { getAllPosts } from "@/lib/pages";
 
+import Preview from "./components/preview";
 import articlesHero from "/public/images/articles.jpg";
 
 export const dynamicParams = false;
 
-const pageSize = 1;
+const pageSize = 12;
 
 async function getPageNumber(params: PageProps<"/articles/[[...page]]">["params"]): Promise<number | null> {
   const { page: pageParam } = await params;
@@ -42,18 +43,21 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
     <section className="flex flex-col grow">
       <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill />} />
       <div className="content-container flex flex-col grow justify-between">
-        <main>
+        <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {paginatedPosts.map((post) => (
-            <article key={post.frontmatter.slug} className="mb-8">
-              <h2 className="text-2xl font-bold mb-2 font-serif">
-                <a href={`/articles/${post.frontmatter.slug}`} className="text-emerald-700 hover:underline">
-                  {post.frontmatter.title}
-                </a>
-              </h2>
-              <p className="text-gray-600 text-sm mb-4">{new Date(post.frontmatter.date).toLocaleDateString()}</p>
-              <p>{post.excerpt}</p>
-            </article>
+            <Preview key={post.frontmatter.slug} post={post} />
           ))}
+          {/* {paginatedPosts.map((post) => (
+          //   <article key={post.frontmatter.slug} className="mb-8">
+          //     <h2 className="text-2xl font-bold mb-2 font-serif">
+          //       <a href={`/articles/${post.frontmatter.slug}`} className="text-emerald-700 hover:underline">
+          //         {post.frontmatter.title}
+          //       </a>
+          //     </h2>
+          //     <p className="text-gray-600 text-sm mb-4">{new Date(post.frontmatter.date).toLocaleDateString()}</p>
+          //     <p>{post.excerpt}</p>
+          //   </article>
+          // ))}
           {/* Pagination Controls */}
         </main>
         <footer className="flex justify-between mt-8">

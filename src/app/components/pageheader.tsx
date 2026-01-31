@@ -10,7 +10,7 @@ export default function PageHeader({ heroImage, title, children }: PageHeaderPro
 
   if (React.isValidElement<HTMLElement>(heroImage)) {
     styledHeroImage = React.cloneElement(heroImage, {
-      className: [heroImage.props.className, "object-cover object-center"].join(" "),
+      className: [heroImage.props.className, "object-cover object-center brightness-90"].join(" "),
     });
   }
 
@@ -18,14 +18,12 @@ export default function PageHeader({ heroImage, title, children }: PageHeaderPro
     <header className="-mt-16 mb-8 overflow-hidden">
       <div className="grid h-36 grid-rows-[4rem_auto] lg:h-60">
         {styledHeroImage && <div className="col-span-full row-span-full object-cover relative">{styledHeroImage}</div>}
-        <div className="relative col-span-full row-[2/-1] flex flex-col justify-center bg-white/40">
+        <div className="relative col-span-full row-[2/-1] flex flex-col justify-center">
           <div className="content-container">
-            {title && (
-              <h1 className="text-2xl font-semibold text-neutral-800 text-shadow-sm text-shadow-white/20 lg:text-4xl">
-                {title}
-              </h1>
-            )}
-            <div className="min-h-4 text-neutral-600 md:min-h-8">{children}</div>
+            {title && <h1 className="text-2xl font-bold text-white text-shadow-lg lg:text-6xl">{title}</h1>}
+            <div className="min-h-4 text-white font-semibold text-shadow-xs md:min-h-8 text-shadow-black/40">
+              {children}
+            </div>
           </div>
         </div>
       </div>
