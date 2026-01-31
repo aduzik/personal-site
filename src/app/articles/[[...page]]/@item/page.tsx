@@ -1,8 +1,8 @@
-import PageHeader from "@/app/components/pageheader";
-import Prose from "@/app/components/prose";
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
+import PageHeader from "@/app/components/pageheader";
+import Prose from "@/app/components/prose";
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
 import { findPostsBySlug, getNextPost, getPreviousPost } from "@/lib/pages";

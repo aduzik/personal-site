@@ -6,7 +6,14 @@
   "trailingComma": "all",
   "proseWrap": "always",
   "quoteProps": "as-needed",
-  "importOrder": ["^react(.*)$", "<THIRD_PARTY_MODULES>", "", "^@/components/(.*)$", "^@/lib/(.*)$", "", "^[./]"],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrder": [
+    "^react(.*)$",
+    "^(@[^/]+)?remark-(.*)$",
+    "^(@[^/]+)?rehype-(.*)$",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/(.*)$",
+    "",
+    "^[./]"
+  ]
 }

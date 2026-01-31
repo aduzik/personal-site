@@ -1,8 +1,14 @@
 import path from "path";
 import url from "url";
 import * as runtime from "react/jsx-runtime";
-import TableOfContents, { TableOfContentsProps } from "@/app/components/tableofcontents";
-import YouTube from "@/app/components/youtube";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import remarkSmartypants from "remark-smartypants";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeCallouts from "rehype-callouts";
+import rehypeKatex from "rehype-katex";
+import rehypePrismPlus from "rehype-prism-plus";
+import rehypeSlug from "rehype-slug";
 import { compile, run } from "@mdx-js/mdx";
 import rehypeFigure from "@microflash/rehype-figure";
 import rehypeExtractToc, { Toc, TocEntry } from "@stefanprobst/rehype-extract-toc";
@@ -11,17 +17,12 @@ import type { Root as MdRoot } from "mdast";
 import { MDXComponents, MDXContent } from "mdx/types";
 import ExportedImage from "next-image-export-optimizer";
 import { StaticImageData } from "next/image";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeCallouts from "rehype-callouts";
-import rehypeKatex from "rehype-katex";
-import rehypePrismPlus from "rehype-prism-plus";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import remarkSmartypants from "remark-smartypants";
 import { Plugin } from "unified";
 import { visit } from "unist-util-visit";
 import { VFile } from "vfile";
+
+import TableOfContents, { TableOfContentsProps } from "@/app/components/tableofcontents";
+import YouTube from "@/app/components/youtube";
 
 function addLeadClass(options: { className?: string }) {
   const className = options?.className || "lead";

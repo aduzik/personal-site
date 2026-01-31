@@ -1,8 +1,8 @@
-import PageHeader from "@/app/components/pageheader";
-import articlesHero from "@/assets/articles.jpg";
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
+import PageHeader from "@/app/components/pageheader";
+import articlesHero from "@/assets/articles.jpg";
 import { getAllPosts } from "@/lib/pages";
 
 import Preview from "./components/preview";

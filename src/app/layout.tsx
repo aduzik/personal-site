@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 
-import chicagoFlag from "@/assets/chicagoflag.svg";
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
+import chicagoFlag from "@/assets/chicagoflag.svg";
 import siteData, { getPageMetadata } from "@/lib/siteData";
 
 import SiteHeader from "./components/siteheader";
