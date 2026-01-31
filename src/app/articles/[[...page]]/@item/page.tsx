@@ -1,10 +1,9 @@
-import path from "path";
 import PageHeader from "@/app/components/pageheader";
 import Prose from "@/app/components/prose";
 import ExportedImage from "next-image-export-optimizer";
-import { StaticImageData } from "next/image";
 import Link from "next/link";
 
+import { importImage } from "@/lib/images";
 import formatContent, { defaultComponents } from "@/lib/markdown";
 import { findPostsBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
 
@@ -22,13 +21,9 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
 
   let heroImage: React.ReactNode | null = null;
   if (post.frontmatter.heroImage) {
-    const packageRoot = process.cwd();
-    const imageAbsolutePath = path.resolve(path.dirname(post.filePath), post.frontmatter.heroImage);
-    const imageRelativePath = path.relative(packageRoot, imageAbsolutePath);
+    const image = await importImage(post.frontmatter.heroImage, post.filePath);
 
-    const importImage = (await import(`/public/images/${imageRelativePath}`)).default as StaticImageData;
-
-    heroImage = <ExportedImage src={importImage} alt="" fill />;
+    heroImage = image && <ExportedImage src={image} alt="" fill />;
   }
 
   const Content = await formatContent(post.content, {

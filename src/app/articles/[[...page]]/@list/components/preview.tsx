@@ -1,8 +1,7 @@
-import path from "path";
 import ExportedImage from "next-image-export-optimizer";
-import { StaticImageData } from "next/image";
 import Link from "next/link";
 
+import { importImage } from "@/lib/images";
 import { Post } from "@/lib/pages";
 
 import { dateFormat } from "../../util";
@@ -14,16 +13,12 @@ export interface PreviewProps extends Omit<React.HTMLAttributes<HTMLElement>, "c
 export default async function Preview({ post, ...props }: PreviewProps) {
   let heroImage: React.ReactNode = null;
   if (post.frontmatter.heroImage) {
-    const root = process.cwd();
-    const absolutePath = path.resolve(path.dirname(post.filePath), post.frontmatter.heroImage);
-    const relativePath = path.relative(root, absolutePath);
+    const image = await importImage(post.frontmatter.heroImage, post.filePath);
 
-    const importImage = (await import(`/public/images/${relativePath}`)).default as StaticImageData;
-
-    heroImage = (
+    heroImage = image && (
       <ExportedImage
         className="col-span-full row-span-full object-cover relative brightness-80 group-hover:brightness-90 transition-all"
-        src={importImage}
+        src={image}
         alt=""
         fill
       />

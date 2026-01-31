@@ -17,7 +17,9 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkSmartypants from "remark-smartypants";
+import { Plugin } from "unified";
 import { visit } from "unist-util-visit";
+import { VFile } from "vfile";
 
 function addLeadClass(options: { className?: string }) {
   const className = options?.className || "lead";
@@ -39,22 +41,24 @@ function addLeadClass(options: { className?: string }) {
   };
 }
 
-function resolveImageSrc(options: { filePath: string; root: string }) {
-  return (tree: MdRoot) => {
+type ImageSrcOptions = {
+  contentRoot: string;
+};
+
+const resolveImageSrc: Plugin<[ImageSrcOptions], MdRoot> = ({ contentRoot }) => {
+  return (tree: MdRoot, file) => {
     visit(tree, "image", (node) => {
       const src = node.url;
 
       if (!src.startsWith("http")) {
-        const absoluteSrcPath = path.resolve(path.dirname(options.filePath), src);
-        const relativeSrcPath = path.relative(options.root, absoluteSrcPath);
+        const absoluteSrcPath = file.dirname ? path.resolve(file.dirname, src) : src;
+        const relativeSrcPath = path.relative(contentRoot, absoluteSrcPath);
 
         node.url = relativeSrcPath;
-
-        // console.log("resolve image src", { src, absoluteSrcPath, relativeSrcPath, nodeUrl: node.url });
       }
     });
   };
-}
+};
 
 export type FormatContentOptions = {
   filePath: string;
@@ -63,7 +67,7 @@ export type FormatContentOptions = {
 export default async function formatContent(content: string, options: FormatContentOptions): Promise<MDXContent> {
   const { filePath } = options;
   const root = process.cwd();
-  const contentRoot = path.join(root, "src");
+  const contentRoot = path.join(root, "content");
 
   // const jsx = await compile(content, {
   //   baseUrl,
@@ -72,10 +76,15 @@ export default async function formatContent(content: string, options: FormatCont
   // });
   // console.log(jsx);
 
-  const { default: Content } = await evaluate(content, {
+  const file = new VFile({
+    path: filePath,
+    value: content,
+    cwd: root,
+  });
+  const { default: Content } = await evaluate(file, {
     ...runtime,
     baseUrl: url.pathToFileURL(filePath).href,
-    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { filePath, root }]],
+    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { contentRoot }]],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, { behavior: "append" }],
@@ -92,13 +101,11 @@ export default async function formatContent(content: string, options: FormatCont
 
 export const defaultComponents: MDXComponents = {
   img: async (props) => {
-    const { src, width, height } = (await import(`/public/images/${props.src}`)).default as StaticImageData;
+    const image = (await import(`@content/${props.src}`)).default as StaticImageData;
 
     const imageProps = {
       ...props,
-      src,
-      width,
-      height,
+      src: image,
     };
 
     return <ExportedImage {...imageProps} />;

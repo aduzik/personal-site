@@ -1,29 +1,37 @@
 ---
 title: "Hello, world"
 slug: "index"
-heroImage: "/images/chicago.jpg"
+heroImage: "./chicago.jpg"
 ---
 
 # Home Page content goes here
 
+<figure>
 $$
-\begin{align*}
+\begin{equation*}
+\begin{aligned}
 ax^2+bx+c&=0 \\
 ax^2+bx&=-c \\
-x^2+\frac{bx}{a}&=-\frac{c}{a}\\
+x^2+\frac{bx}{a}&=-\frac{c}{a} \\
 x^2+\frac{bx}{a}+\left(\frac{b}{2a}\right)^2&=-\frac{c}{a}+\left(\frac{b}{2a}\right)^2 \\
 \left(x+\frac{b}{2a}\right)^2&=-\frac{c}{a}+\frac{b^2}{4a^2} \\
 \left(x+\frac{b}{2a}\right)^2&=\frac{b^2-4ac}{4a^2} \\
 x+\frac{b}{2a}&=\frac{\pm\sqrt{b^2-4ac}}{2a} \\
 x&=\frac{-b\pm\sqrt{b^2-4ac}}{2a}
-\end{align*}
+\end{aligned}
+\end{equation*}
 $$
+<figcaption>Derivation of the quadratic formula</figcaption>
+</figure>
 
 # I'm at my limit!
 
+<figure>
 $$
 \lim_{x \to p}{f(x)}=L \iff \left( \forall \epsilon > 0, \exists \delta > 0: \forall x \in \R, 0 < \lvert x - p \rvert < \delta \implies \lvert f(x) - L \rvert < \epsilon \right)
 $$
+<figcaption>The $(\epsilon,\delta)$ definition of a limit</figcaption>
+</figure>
 
 If you're telling me that the limit of $f(x)$ is $L$ as $x$ approaches $p$, then what you're saying is that I can give
 you some number, $\epsilon$, which defines a range above and below $L$ ($L \pm \epsilon$ if you'd like to think of it
@@ -37,11 +45,16 @@ I'll get a value that's within _my_ range around $L$. And I can do this any numb
 progressively smaller values for $\epsilon$, but the $\delta$ you give me will always produce values in the range around
 $L$.
 
+<figure>
 $$
-N = (\Sigma, Q, \delta, q_0, F) \\
-\delta:(q \in Q, \sigma \in \Sigma) \to q' \in Q \\
-q_0 \in Q \\
-F \subseteq Q
+\begin{align*}
+N &= (\Sigma, Q, \delta, q_0, F) \\
+\delta &:(Q \times \Sigma) \to Q \\
+q_0 &\in Q \\
+F &\subseteq Q
+\end{align*}
 $$
+<figcaption>Formal definition of a DFA</figcaption>
+</figure>
 
 [^1]: a game for the kind of person who enjoys reading the board game rules more than actually playing, I suspect.

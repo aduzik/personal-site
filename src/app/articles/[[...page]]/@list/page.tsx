@@ -1,11 +1,11 @@
 import PageHeader from "@/app/components/pageheader";
+import articlesHero from "@/assets/articles.jpg";
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
 import { getAllPosts } from "@/lib/pages";
 
 import Preview from "./components/preview";
-import articlesHero from "/public/images/articles.jpg";
 
 export const dynamicParams = false;
 
@@ -23,7 +23,6 @@ async function getPageNumber(params: PageProps<"/articles/[[...page]]">["params"
 
 export default async function ArticleListPage({ params }: PageProps<"/articles/[[...page]]">) {
   const currentPage = await getPageNumber(params);
-  console.log("Articles list page params:", await params, { currentPage });
   if (!currentPage) return null;
 
   const posts = getAllPosts();
@@ -32,16 +31,9 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
   const endIndex = startIndex + pageSize;
   const paginatedPosts = posts.slice(startIndex, endIndex);
 
-  console.log("Rendering articles page", {
-    currentPage,
-    startIndex,
-    endIndex,
-    paginatedPostsLength: paginatedPosts.length,
-  });
-
   return (
     <section className="flex flex-col grow">
-      <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill />} />
+      <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill preload />} />
       <div className="content-container flex flex-col grow justify-between">
         <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {paginatedPosts.map((post) => (
