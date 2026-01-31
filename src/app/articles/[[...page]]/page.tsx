@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { findPostBySlug } from "@/lib/pages";
+import { findPostsBySlug } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
 import { getPageNumber, isListPage } from "./util";
@@ -15,21 +15,15 @@ export async function generateMetadata({ params }: PageProps<"/articles/[[...pag
   const { page } = await params;
   if (isListPage(page)) {
     const pageNumber = getPageNumber(page);
-    return getPageMetadata(!pageNumber ? "Articles" : `Articles - Page ${pageNumber}`, {
-      linkRSSFeed: true,
-    });
+    return getPageMetadata(!pageNumber ? "Articles" : `Articles - Page ${pageNumber}`);
   } else if (typeof page !== "undefined" && page.length === 1) {
-    const post = findPostBySlug(page[0]);
+    const post = findPostsBySlug(page[0]);
     if (post) {
-      return getPageMetadata(post.frontmatter.title, {
-        linkRSSFeed: true,
-      });
+      return getPageMetadata(post.frontmatter.title);
     }
   }
 
-  return getPageMetadata("Articles", {
-    linkRSSFeed: true,
-  });
+  return getPageMetadata("Articles");
 }
 
 export default ArticleIndexPage;

@@ -1,7 +1,9 @@
+import path from "path";
+import CopyPlugin from "copy-webpack-plugin";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: process.env.NODE_ENV !== "development" ? "export" : undefined,
+  output: "export",
   images: {
     loader: "custom",
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -17,13 +19,31 @@ const nextConfig: NextConfig = {
     nextImageExportOptimizer_generateAndUseBlurImages: "true",
     nextImageExportOptimizer_remoteImageCacheTTL: "0",
   },
-  turbopack: {
-    rules: {
-      "*.mdx": {
-        loaders: ["raw-loader"],
-        as: "*.js",
-      },
-    },
+  serverExternalPackages: ["remark-prism"],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins.push(
+        new CopyPlugin({
+          patterns: [
+            {
+              from: path.resolve(process.cwd(), "content"),
+              to: path.resolve(process.cwd(), "public/images/content"),
+              globOptions: {
+                ignore: ["**/*.md", "**/*.mdx"],
+              },
+            },
+          ],
+        }),
+      );
+    }
+    // config.module.rules.push({
+    //   test: /\.(png|jpe?g|gif|webp|avif|svg)$/i,
+    //   type: "asset/resource",
+    //   generator: {
+    //     filename: "images/[name]-[hash][ext]",
+    //   },
+    // });
+    return config;
   },
 };
 
