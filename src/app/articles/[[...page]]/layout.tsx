@@ -17,8 +17,6 @@ export async function generateStaticParams() {
     pages.push([slug]);
   });
 
-  console.log("All pages", pages);
-
   return pages.map((page) => ({
     page,
   }));
