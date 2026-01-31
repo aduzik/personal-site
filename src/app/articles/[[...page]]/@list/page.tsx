@@ -32,10 +32,10 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
   const paginatedPosts = posts.slice(startIndex, endIndex);
 
   return (
-    <section className="flex flex-col grow">
+    <section className="flex grow flex-col">
       <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill preload />} />
-      <div className="content-container flex flex-col grow justify-between">
-        <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+      <div className="content-container flex grow flex-col justify-between">
+        <main className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
           {paginatedPosts.map((post) => (
             <Preview key={post.frontmatter.slug} post={post} />
           ))}
@@ -52,13 +52,13 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
           // ))}
           {/* Pagination Controls */}
         </main>
-        <footer className="flex justify-between mt-8">
+        <footer className="mt-8 flex justify-between">
           {currentPage > 1 ?
             <Link
               href={`/articles${currentPage > 2 ? `?p=${currentPage - 1}` : ""}`}
               className={[
                 "text-emerald-700 hover:underline",
-                "before:content-['«'] before:inline-block before:mr-1",
+                "before:mr-1 before:inline-block before:content-['«']",
                 "hover:before:-translate-x-1 hover:before:transition-transform",
               ].join(" ")}
             >
@@ -70,7 +70,7 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
               href={`/articles/${currentPage + 1}`}
               className={[
                 "text-emerald-700 hover:underline",
-                "after:content-['»'] after:inline-block after:ml-1",
+                "after:ml-1 after:inline-block after:content-['»']",
                 "hover:after:translate-x-1 hover:after:transition-transform",
               ].join(" ")}
             >

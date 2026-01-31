@@ -17,7 +17,7 @@ export default async function Preview({ post, ...props }: PreviewProps) {
 
     heroImage = image && (
       <ExportedImage
-        className="col-span-full row-span-full object-cover relative brightness-80 group-hover:brightness-90 transition-all"
+        className="relative col-span-full row-span-full object-cover brightness-80 transition-all group-hover:brightness-90"
         src={image}
         alt=""
         fill
@@ -29,16 +29,16 @@ export default async function Preview({ post, ...props }: PreviewProps) {
     <article {...props}>
       <header>
         <Link href={`/articles/${post.frontmatter.slug}`} className="block" aria-label={post.frontmatter.title}>
-          <div className="group grid mb-4 bg-neutral-200 rounded-md overflow-hidden h-48 relative shadow-sm shadow-black/60">
+          <div className="group relative mb-4 grid h-48 overflow-hidden rounded-md bg-neutral-200 shadow-sm shadow-black/60">
             {heroImage}
-            <div className="col-span-full row-span-full flex flex-col justify-end p-4 z-20">
-              <h2 className="text-2xl font-bold font-serif text-white text-shadow-sm text-shadow-black/40 group-hover:underline">
+            <div className="z-20 col-span-full row-span-full flex flex-col justify-end p-4">
+              <h2 className="font-serif text-2xl font-bold text-white text-shadow-black/40 text-shadow-sm group-hover:underline">
                 {post.frontmatter.title}
               </h2>
             </div>
           </div>
         </Link>
-        <p className="text-gray-600 text-sm mb-4">{dateFormat.format(new Date(post.frontmatter.date))}</p>
+        <p className="mb-4 text-sm text-gray-600">{dateFormat.format(new Date(post.frontmatter.date))}</p>
         <p>{post.excerpt}</p>
       </header>
     </article>

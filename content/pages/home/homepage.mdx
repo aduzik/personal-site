@@ -4,11 +4,16 @@ slug: "index"
 heroImage: "./chicago.jpg"
 ---
 
+An introductory paragraph should go here.
+
+{/* excerpt */}
+
+<TableOfContents />
+
 # Home Page content goes here
 
 <figure>
 $$
-\begin{equation*}
 \begin{aligned}
 ax^2+bx+c&=0 \\
 ax^2+bx&=-c \\
@@ -19,7 +24,6 @@ x^2+\frac{bx}{a}+\left(\frac{b}{2a}\right)^2&=-\frac{c}{a}+\left(\frac{b}{2a}\ri
 x+\frac{b}{2a}&=\frac{\pm\sqrt{b^2-4ac}}{2a} \\
 x&=\frac{-b\pm\sqrt{b^2-4ac}}{2a}
 \end{aligned}
-\end{equation*}
 $$
 <figcaption>Derivation of the quadratic formula</figcaption>
 </figure>
@@ -33,17 +37,23 @@ $$
 <figcaption>The $(\epsilon,\delta)$ definition of a limit</figcaption>
 </figure>
 
+## Second-level heading
+
 If you're telling me that the limit of $f(x)$ is $L$ as $x$ approaches $p$, then what you're saying is that I can give
 you some number, $\epsilon$, which defines a range above and below $L$ ($L \pm \epsilon$ if you'd like to think of it
 that way). Now, your job is to take $\epsilon$, and give me some other number, $\delta$. If I take your $\delta$ and
 look within the range $p \pm \delta$, then any (defined) value I come up with in that range will give me a value inside
 the range $L \pm \epsilon$.
 
+## Another heading
+
 So it's kind of like a game[^1]. You claim that the limit is $L$. I give you some arbitrarily small range around $L$.
 You give me another range around $p$, and if I pick any value $x \in \R$ in that range where $f(x)$ is defined, then
 I'll get a value that's within _my_ range around $L$. And I can do this any number of times. I can keep giving you
 progressively smaller values for $\epsilon$, but the $\delta$ you give me will always produce values in the range around
 $L$.
+
+### This third-level heading should not appear in the TOC
 
 <figure>
 $$

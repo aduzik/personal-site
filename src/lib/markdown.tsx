@@ -1,9 +1,11 @@
 import path from "path";
 import url from "url";
 import * as runtime from "react/jsx-runtime";
+import TableOfContents, { TableOfContentsProps } from "@/app/components/tableofcontents";
 import YouTube from "@/app/components/youtube";
-import { evaluate } from "@mdx-js/mdx";
+import { compile, run } from "@mdx-js/mdx";
 import rehypeFigure from "@microflash/rehype-figure";
+import rehypeExtractToc, { Toc, TocEntry } from "@stefanprobst/rehype-extract-toc";
 import type { Root } from "hast";
 import type { Root as MdRoot } from "mdast";
 import { MDXComponents, MDXContent } from "mdx/types";
@@ -76,14 +78,14 @@ export default async function formatContent(content: string, options: FormatCont
   // });
   // console.log(jsx);
 
-  const file = new VFile({
+  const mdxSource = new VFile({
     path: filePath,
     value: content,
     cwd: root,
   });
-  const { default: Content } = await evaluate(file, {
-    ...runtime,
+  const compiledSource = await compile(mdxSource, {
     baseUrl: url.pathToFileURL(filePath).href,
+    outputFormat: "function-body",
     remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { contentRoot }]],
     rehypePlugins: [
       rehypeSlug,
@@ -93,10 +95,50 @@ export default async function formatContent(content: string, options: FormatCont
       rehypeFigure,
       [rehypePrismPlus, { showLineNumbers: true }],
       [rehypeCallouts, { theme: "github" }],
+      rehypeExtractToc,
     ],
   });
 
-  return Content;
+  const { default: Content } = await run(compiledSource, {
+    ...runtime,
+  });
+
+  const components = {
+    ...defaultComponents,
+  } as MDXComponents;
+
+  const { toc } = compiledSource.data;
+
+  if (toc) {
+    components.TableOfContents = withToc(pruneTOCEntries(toc)!);
+  }
+
+  return withComponents(Content, components);
+}
+
+// Higher-order components are passe, but since we can't use context in server-side components,
+// it's simpler to create a compone that binds a sepcific ToC to a TableOfContents instance.
+function withToc(entries: Toc) {
+  return function TableOfContentsWithToc(props: Omit<TableOfContentsProps, "entries">) {
+    return <TableOfContents entries={entries} {...props} />;
+  };
+}
+
+function pruneTOCEntries(entries: TocEntry[] | undefined): TocEntry[] | undefined {
+  if (!entries) return undefined;
+
+  return entries
+    .filter(({ id, depth }) => depth <= 2 && id !== "footnote-label")
+    .map((entry) => ({
+      ...entry,
+      children: pruneTOCEntries(entry.children),
+    }));
+}
+
+function withComponents(Component: MDXContent, defaultComponents: MDXComponents): MDXContent {
+  return ({ components, ...rest }) => {
+    return <Component {...rest} components={{ ...defaultComponents, ...components }} />;
+  };
 }
 
 export const defaultComponents: MDXComponents = {
