@@ -1,9 +1,9 @@
-import { getAllPostItems } from "@/lib/pages";
+import { getAllPosts } from "@/lib/pages";
 
 export async function generateStaticParams() {
   const itemsPerPage = 1;
 
-  const allPosts = getAllPostItems();
+  const allPosts = getAllPosts();
 
   const pages: string[][] = [];
 
@@ -16,6 +16,8 @@ export async function generateStaticParams() {
   allPosts.forEach(({ frontmatter: { slug } }) => {
     pages.push([slug]);
   });
+
+  console.log("All pages", pages);
 
   return pages.map((page) => ({
     page,

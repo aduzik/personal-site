@@ -4,9 +4,6 @@
 @import "katex/dist/katex.min.css";
 @plugin "@tailwindcss/typography";
 
-@theme {
-}
-
 @custom-variant link-external {
   &[href^="http"] {
     @slot;
@@ -44,19 +41,8 @@
 }
 
 @utility content-container {
-  @apply mx-auto w-full overflow-x-hidden px-4 lg:w-5xl;
-}
-
-.prose {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    > a {
-      @apply inline-block text-inherit no-underline;
-    }
+  & {
+    @apply mx-auto px-4 md:w-lg lg:w-3xl;
   }
 }
 
