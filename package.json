@@ -3,25 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack && next-image-export-optimizer",
+    "dev": "next dev",
+    "build": "next build && next-image-export-optimizer",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.17",
     "@mdx-js/loader": "^3.1.1",
-    "@mdx-js/react": "^3.1.1",
     "@microflash/rehype-figure": "^2.1.4",
+    "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/mdx": "^2.0.13",
-    "copy-webpack-plugin": "^13.0.1",
     "gray-matter": "^4.0.3",
     "next": "16.1.5",
     "next-image-export-optimizer": "^1.20.1",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prismjs": "^1.30.0",
+    "raw-loader": "^4.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recma-mdx-change-imports": "^1.2.2",
@@ -35,7 +35,8 @@
     "remark-math": "^6.0.0",
     "remark-smartypants": "^3.0.2",
     "sharp": "^0.34.5",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "vfile": "^6.0.3"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",

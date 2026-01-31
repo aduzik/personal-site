@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 
-import chicagoFlag from "@/assets/chicagoflag.svg";
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
+import chicagoFlag from "@/assets/chicagoflag.svg";
 import siteData, { getPageMetadata } from "@/lib/siteData";
 
 import SiteHeader from "./components/siteheader";
@@ -20,7 +20,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
-          <main className="grow flex flex-col">{children}</main>
+          <main className="flex grow flex-col">{children}</main>
           <footer className="mt-auto pt-8">
             <div className="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600">
               <div>
