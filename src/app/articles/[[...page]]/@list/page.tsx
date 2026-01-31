@@ -1,11 +1,11 @@
+import PageHeader from "@/app/components/pageheader";
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
-import PageHeader from "@/app/components/pageheader";
-import articlesHero from "@/assets/articles.jpg";
-import { getAllPostItems } from "@/lib/pages";
+import { getAllPosts } from "@/lib/pages";
 
 import Preview from "./components/preview";
+import articlesHero from "/public/images/articles.jpg";
 
 export const dynamicParams = false;
 
@@ -23,30 +23,50 @@ async function getPageNumber(params: PageProps<"/articles/[[...page]]">["params"
 
 export default async function ArticleListPage({ params }: PageProps<"/articles/[[...page]]">) {
   const currentPage = await getPageNumber(params);
+  console.log("Articles list page params:", await params, { currentPage });
   if (!currentPage) return null;
 
-  const posts = getAllPostItems();
+  const posts = getAllPosts();
 
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedPosts = posts.slice(startIndex, endIndex);
 
+  console.log("Rendering articles page", {
+    currentPage,
+    startIndex,
+    endIndex,
+    paginatedPostsLength: paginatedPosts.length,
+  });
+
   return (
-    <section className="flex grow flex-col">
-      <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill preload />} />
-      <div className="content-container flex grow flex-col justify-between">
-        <main className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <section className="flex flex-col grow">
+      <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill />} />
+      <div className="content-container flex flex-col grow justify-between">
+        <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {paginatedPosts.map((post) => (
             <Preview key={post.frontmatter.slug} post={post} />
           ))}
+          {/* {paginatedPosts.map((post) => (
+          //   <article key={post.frontmatter.slug} className="mb-8">
+          //     <h2 className="text-2xl font-bold mb-2 font-serif">
+          //       <a href={`/articles/${post.frontmatter.slug}`} className="text-emerald-700 hover:underline">
+          //         {post.frontmatter.title}
+          //       </a>
+          //     </h2>
+          //     <p className="text-gray-600 text-sm mb-4">{new Date(post.frontmatter.date).toLocaleDateString()}</p>
+          //     <p>{post.excerpt}</p>
+          //   </article>
+          // ))}
+          {/* Pagination Controls */}
         </main>
-        <footer className="mt-8 flex justify-between">
+        <footer className="flex justify-between mt-8">
           {currentPage > 1 ?
             <Link
               href={`/articles${currentPage > 2 ? `?p=${currentPage - 1}` : ""}`}
               className={[
                 "text-emerald-700 hover:underline",
-                "before:mr-1 before:inline-block before:content-['«']",
+                "before:content-['«'] before:inline-block before:mr-1",
                 "hover:before:-translate-x-1 hover:before:transition-transform",
               ].join(" ")}
             >
@@ -58,7 +78,7 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
               href={`/articles/${currentPage + 1}`}
               className={[
                 "text-emerald-700 hover:underline",
-                "after:ml-1 after:inline-block after:content-['»']",
+                "after:content-['»'] after:inline-block after:ml-1",
                 "hover:after:translate-x-1 hover:after:transition-transform",
               ].join(" ")}
             >

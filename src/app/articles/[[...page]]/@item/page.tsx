@@ -1,11 +1,12 @@
+import path from "path";
+import PageHeader from "@/app/components/pageheader";
+import Prose from "@/app/components/prose";
 import ExportedImage from "next-image-export-optimizer";
+import { StaticImageData } from "next/image";
 import Link from "next/link";
 
-import PageContent from "@/app/components/pagecontent";
-import PageHeader from "@/app/components/pageheader";
-import { importImage } from "@/lib/images";
-import formatContent from "@/lib/markdown";
-import { findPostBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
+import formatContent, { defaultComponents } from "@/lib/markdown";
+import { findPostsBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
 
 import { dateFormat } from "../util";
 
@@ -16,17 +17,21 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
   const slug = page[0];
   if (!isNaN(parseInt(slug))) return null;
 
-  const post = findPostBySlug(slug);
+  const post = findPostsBySlug(slug);
   if (!post) return null;
 
   let heroImage: React.ReactNode | null = null;
   if (post.frontmatter.heroImage) {
-    const image = await importImage(post.frontmatter.heroImage, post.filePath);
+    const packageRoot = process.cwd();
+    const imageAbsolutePath = path.resolve(path.dirname(post.filePath), post.frontmatter.heroImage);
+    const imageRelativePath = path.relative(packageRoot, imageAbsolutePath);
 
-    heroImage = image && <ExportedImage src={image} alt="" fill />;
+    const importImage = (await import(`/public/images/${imageRelativePath}`)).default as StaticImageData;
+
+    heroImage = <ExportedImage src={importImage} alt="" fill />;
   }
 
-  const { default: Content, tableOfContents } = await formatContent(post.content, {
+  const Content = await formatContent(post.content, {
     filePath: post.filePath,
   });
 
@@ -34,39 +39,37 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
   const previousPost = getPreviousPost(post);
 
   return (
-    <article className="flex grow flex-col">
+    <article className="grow flex flex-col">
       <PageHeader title={post.frontmatter.title} heroImage={heroImage}>
-        <p className="text-sm">Published on {dateFormat.format(new Date(post.frontmatter.date))}</p>
+        <p className="text-sm ">Published on {dateFormat.format(new Date(post.frontmatter.date))}</p>
       </PageHeader>
-      <PageContent
-        tableOfContents={tableOfContents}
-        contentFooter={
-          (nextPost || previousPost) && (
-            <footer className="mt-4 mb-8">
-              <div className="flex flex-row justify-between">
-                {nextPost ?
-                  <Link
-                    href={`/articles/${nextPost.frontmatter.slug}`}
-                    className="link-backward text-emerald-700 hover:underline dark:text-emerald-500"
-                  >
-                    {nextPost.frontmatter.title}
-                  </Link>
-                : <div />}
-                {previousPost ?
-                  <Link
-                    href={`/articles/${previousPost.frontmatter.slug}`}
-                    className="link-forward text-emerald-700 hover:underline dark:text-emerald-500"
-                  >
-                    {previousPost.frontmatter.title}
-                  </Link>
-                : <div />}
-              </div>
-            </footer>
-          )
-        }
-      >
-        <Content />
-      </PageContent>
+      <main className="content-container grow">
+        <Prose>
+          <Content components={defaultComponents} />
+        </Prose>
+      </main>
+      {(nextPost || previousPost) && (
+        <footer className="content-container mb-8 mt-4">
+          <div className="flex flex-row justify-between">
+            {nextPost ?
+              <Link
+                href={`/articles/${nextPost.frontmatter.slug}`}
+                className="text-emerald-700 hover:underline link-backward"
+              >
+                {nextPost.frontmatter.title}
+              </Link>
+            : <div />}
+            {previousPost ?
+              <Link
+                href={`/articles/${previousPost.frontmatter.slug}`}
+                className="text-emerald-700 hover:underline link-forward"
+              >
+                {previousPost.frontmatter.title}
+              </Link>
+            : <div />}
+          </div>
+        </footer>
+      )}
     </article>
   );
 }

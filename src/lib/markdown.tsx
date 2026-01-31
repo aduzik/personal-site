@@ -1,31 +1,23 @@
 import path from "path";
 import url from "url";
-import React from "react";
 import * as runtime from "react/jsx-runtime";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import remarkSmartypants from "remark-smartypants";
+import YouTube from "@/app/components/youtube";
+import { evaluate } from "@mdx-js/mdx";
+import rehypeFigure from "@microflash/rehype-figure";
+import type { Root } from "hast";
+import type { Root as MdRoot } from "mdast";
+import { MDXComponents, MDXContent } from "mdx/types";
+import ExportedImage from "next-image-export-optimizer";
+import { StaticImageData } from "next/image";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeCallouts from "rehype-callouts";
 import rehypeKatex from "rehype-katex";
 import rehypePrismPlus from "rehype-prism-plus";
 import rehypeSlug from "rehype-slug";
-import sectionize from "@hbsnow/rehype-sectionize";
-import { compile, run } from "@mdx-js/mdx";
-import rehypeFigure from "@microflash/rehype-figure";
-import rehypeExtractToc, { Toc, TocEntry } from "@stefanprobst/rehype-extract-toc";
-import rehypeExportToc from "@stefanprobst/rehype-extract-toc/mdx";
-import type { Root } from "hast";
-import type { Root as MdRoot } from "mdast";
-import { MDXComponents, MDXContent, MDXModule } from "mdx/types";
-import ExportedImage from "next-image-export-optimizer";
-import { StaticImageData } from "next/image";
-import { Plugin } from "unified";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import remarkSmartypants from "remark-smartypants";
 import { visit } from "unist-util-visit";
-import { VFile } from "vfile";
-
-import TableOfContents, { TableOfContentsProps } from "@/app/components/tableofcontents";
-import YouTube from "@/app/components/youtube";
 
 function addLeadClass(options: { className?: string }) {
   const className = options?.className || "lead";
@@ -47,143 +39,66 @@ function addLeadClass(options: { className?: string }) {
   };
 }
 
-type ImageSrcOptions = {
-  contentRoot: string;
-};
-
-const resolveImageSrc: Plugin<[ImageSrcOptions], MdRoot> = ({ contentRoot }) => {
-  return (tree: MdRoot, file) => {
+function resolveImageSrc(options: { filePath: string; root: string }) {
+  return (tree: MdRoot) => {
     visit(tree, "image", (node) => {
       const src = node.url;
 
       if (!src.startsWith("http")) {
-        const absoluteSrcPath = file.dirname ? path.resolve(file.dirname, src) : src;
-        const relativeSrcPath = path.relative(contentRoot, absoluteSrcPath);
+        const absoluteSrcPath = path.resolve(path.dirname(options.filePath), src);
+        const relativeSrcPath = path.relative(options.root, absoluteSrcPath);
 
         node.url = relativeSrcPath;
+
+        // console.log("resolve image src", { src, absoluteSrcPath, relativeSrcPath, nodeUrl: node.url });
       }
     });
   };
-};
+}
 
 export type FormatContentOptions = {
   filePath: string;
-  ssr?: boolean;
-  components?: MDXComponents;
 };
 
-export default async function formatContent(content: string, options: FormatContentOptions): Promise<MDXModule> {
-  const { filePath, ssr = false } = options;
+export default async function formatContent(content: string, options: FormatContentOptions): Promise<MDXContent> {
+  const { filePath } = options;
   const root = process.cwd();
-  const contentRoot = path.join(root, "content");
+  const contentRoot = path.join(root, "src");
 
-  const vfile = new VFile({
-    value: content,
-    path: filePath,
-  });
-  const compiledSource = await compile(vfile, {
+  // const jsx = await compile(content, {
+  //   baseUrl,
+  //   remarkPlugins: [remarkGfm, remarkMath, [resolveImageSrc, { filePath, contentRoot, imagesRoot: "/public/images" }]],
+  //   rehypePlugins: [rehypeKatex, addLeadClass],
+  // });
+  // console.log(jsx);
+
+  const { default: Content } = await evaluate(content, {
+    ...runtime,
     baseUrl: url.pathToFileURL(filePath).href,
-    outputFormat: "function-body",
-    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { contentRoot }]],
+    remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { filePath, root }]],
     rehypePlugins: [
       rehypeSlug,
-      [rehypeAutolinkHeadings, { behavior: "wrap" }],
-      sectionize,
+      [rehypeAutolinkHeadings, { behavior: "append" }],
       rehypeKatex,
       addLeadClass,
       rehypeFigure,
       [rehypePrismPlus, { showLineNumbers: true }],
       [rehypeCallouts, { theme: "github" }],
-      rehypeExtractToc,
-      rehypeExportToc,
     ],
   });
 
-  const mdxModule = await run(compiledSource, {
-    ...runtime,
-  });
-
-  const { default: Content, tableOfContents, ...rest } = mdxModule;
-
-  const components = {
-    ...createDefaultComponents(ssr),
-    ...options.components,
-  } as MDXComponents;
-
-  if (tableOfContents) {
-    components.TableOfContents = withToc(
-      (components.TableOfContents as React.ComponentType<TableOfContentsProps> | undefined) ?? TableOfContents,
-      pruneTOCEntries(tableOfContents)!,
-    );
-  }
-
-  return {
-    default: withComponents(Content, components),
-    tableOfContents,
-    ...rest,
-  };
+  return Content;
 }
 
-// Higher-order components are passe, but since we can't use context in server-side components,
-// it's simpler to create a compone that binds a sepcific ToC to a TableOfContents instance.
-function withToc(TocComponent: React.ComponentType<TableOfContentsProps>, entries: Toc) {
-  return function TableOfContentsWithToc(props: Omit<TableOfContentsProps, "entries">) {
-    return <TocComponent entries={entries} {...props} />;
-  };
-}
-
-function pruneTOCEntries(entries: TocEntry[] | undefined): TocEntry[] | undefined {
-  if (!entries) return undefined;
-
-  return entries
-    .filter(({ id, depth }) => depth <= 2 && id !== "footnote-label")
-    .map((entry) => ({
-      ...entry,
-      children: pruneTOCEntries(entry.children),
-    }));
-}
-
-function withComponents(Component: MDXContent, defaultComponents: MDXComponents): MDXContent {
-  return React.memo(function ContentWithComponents({ components, ...rest }) {
-    return <Component {...rest} components={{ ...defaultComponents, ...components }} />;
-  });
-}
-
-function createDefaultComponents(ssr: boolean): MDXComponents {
-  const defaultComponents: MDXComponents = {
-    img: async (props) => {
-      const image = (await import(`@content/${props.src}`)).default as StaticImageData;
-
-      const imageProps = {
-        ...props,
-        src: image,
-      };
-
-      // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-      return !ssr ? <ExportedImage {...imageProps} /> : <img {...imageProps} />;
-    },
-    YouTube: (props) => (
-      <div className="text-center">
-        <div className="inline-block aspect-video overflow-clip rounded-lg shadow-lg shadow-neutral-600/50 dark:shadow-black/50">
-          <YouTube {...props} />
-        </div>
-      </div>
-    ),
-  };
-
-  if (!ssr) {
-    defaultComponents.ExportedImage = ExportedImage;
-  }
-
-  return defaultComponents;
-}
 export const defaultComponents: MDXComponents = {
   img: async (props) => {
-    const image = (await import(`@content/${props.src}`)).default as StaticImageData;
+    const { src, width, height } = (await import(`/public/images/${props.src}`)).default as StaticImageData;
 
     const imageProps = {
       ...props,
-      src: image,
+      src,
+      width,
+      height,
     };
 
     return <ExportedImage {...imageProps} />;
@@ -191,7 +106,7 @@ export const defaultComponents: MDXComponents = {
   ExportedImage,
   YouTube: (props) => (
     <div className="text-center">
-      <div className="inline-block aspect-video overflow-clip rounded-lg shadow-lg shadow-neutral-600/50 dark:shadow-black/50">
+      <div className="inline-block aspect-video overflow-clip rounded-lg shadow-xl shadow-neutral-600/50">
         <YouTube {...props} />
       </div>
     </div>

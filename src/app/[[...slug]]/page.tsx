@@ -1,25 +1,22 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
-import { notFound } from "next/navigation";
-import { twMerge } from "tailwind-merge";
 
-import { importImage } from "@/lib/images";
-import formatContent from "@/lib/markdown";
-import { findPageBySlug, getAllPageItems } from "@/lib/pages";
+import formatContent, { defaultComponents } from "@/lib/markdown";
+import { findBySlug, getAllPages } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
-import PageContent from "../components/pagecontent";
 import PageHeader from "../components/pageheader";
-import TableOfContents from "../components/tableofcontents";
 
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const pageData = getAllPageItems();
+  const pageData = getAllPages(false);
 
   const staticParams = pageData.map(({ frontmatter: { slug } }) => ({
     slug: slug === "index" ? [] : [slug],
   }));
+
+  console.log("Generating static params for pages:", staticParams);
 
   return staticParams;
 }
@@ -39,7 +36,7 @@ export async function generateMetadata({ params }: PageProps<"/[[...slug]]">): P
 
   let title: string | undefined = undefined;
   if (slug) {
-    const pageData = findPageBySlug(slug)!;
+    const pageData = findBySlug("pages", slug)!;
     title = pageData.frontmatter.title;
   }
 
@@ -48,34 +45,34 @@ export async function generateMetadata({ params }: PageProps<"/[[...slug]]">): P
 
 export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   const slug = await getPageSlug(params);
-  if (!slug) return notFound();
+  console.log("Generating metadata for slug:", slug, await params);
+  if (!slug) return null;
 
-  const pageData = findPageBySlug(slug);
-  if (!pageData) return notFound();
+  const pageData = findBySlug("pages", slug)!;
 
-  const { default: Content, tableOfContents } = await formatContent(pageData.content, {
+  const Content = await formatContent(pageData.content, {
     filePath: pageData.filePath,
-    components: {
-      TableOfContents: ({ className, ...props }) => (
-        <TableOfContents className={twMerge(className, "md:hidden")} {...props} />
-      ),
-    },
   });
 
-  let heroImage: React.ReactNode | null = null;
-  if (pageData.frontmatter.heroImage) {
-    const image = await importImage(pageData.frontmatter.heroImage, pageData.filePath);
-    if (image) {
-      heroImage = <ExportedImage src={image} className="my-4 rounded-md" alt="Hero Image" fill />;
-    }
-  }
+  const heroImage =
+    pageData.frontmatter.heroImage ?
+      <ExportedImage src={pageData.frontmatter.heroImage} alt="Hero Image" className="my-4 rounded-md" fill />
+    : null;
 
   return (
     <article>
       <PageHeader title={pageData.frontmatter.title} heroImage={heroImage} />
-      <PageContent tableOfContents={tableOfContents}>
-        <Content />
-      </PageContent>
+      <main className="content-container">
+        <div
+          className={[
+            "prose prose-neutral prose-headings:font-serif prose-emerald prose-a:after:inline-block prose-a:link-external:link-arrow prose-a:after:text-xs prose-a:no-underline prose-a:hover:underline mx-auto max-w-none md:w-lg lg:w-3xl",
+            "prose-img:in-prose-figure:rounded prose-img:in-prose-figure:shadow-lg prose-img:in-prose-figure:shadow-neutral-500/50",
+            "[counter-reset:figure] prose-figcaption:[counter-increment:figure] prose-figcaption:before:content-['Figure_'counter(figure)'._'] prose-figcaption:before:font-semibold",
+          ].join(" ")}
+        >
+          <Content components={defaultComponents} />
+        </div>
+      </main>
     </article>
   );
 }
