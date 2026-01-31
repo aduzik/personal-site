@@ -312,11 +312,6 @@ async function populateAllItemData() {
       itemType.sort(itemMap);
     }
   }
-
-  // console.log(
-  //   "Posts order",
-  //   itemMap["posts"].map((p) => p.frontmatter.slug),
-  // );
 }
 
 async function populateItemData(relativePath: string, options: { sort?: boolean } = { sort: true }) {
