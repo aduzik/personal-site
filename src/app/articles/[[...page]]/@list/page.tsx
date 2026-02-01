@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import PageHeader from "@/app/components/pageheader";
 import articlesHero from "@/assets/articles.jpg";
-import { getAllPosts } from "@/lib/pages";
+import { getAllPostItems } from "@/lib/pages";
 
 import Preview from "./components/preview";
 
@@ -25,7 +25,7 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
   const currentPage = await getPageNumber(params);
   if (!currentPage) return null;
 
-  const posts = getAllPosts();
+  const posts = getAllPostItems();
 
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;

@@ -3,6 +3,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import tailwind from "eslint-plugin-tailwindcss";
 import unusedImports from "eslint-plugin-unused-imports";
+import reactHooks from 'eslint-plugin-react-hooks';
 import { defineConfig, globalIgnores } from "eslint/config";
 
 const eslintConfig = defineConfig([
@@ -18,16 +19,29 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
   ]),
   {
+    files: ["**/*.tsx"],
+    plugins: {
+      "react-hooks": reactHooks,
+    }
+  },
+  {
+    rules: {
+      "@typescript-eslint/no-empty-object-type": "off",
+    }
+  },
+  {
     settings: {
       tailwindcss: {
         config: path.join(process.cwd(), "tailwind.config.mjs"),
       },
     },
     rules: {
-      "tailwindcss/no-custom-classname": {
-        severity: "warn",
-        whitelist: ["content-container"],
-      },
+      "tailwindcss/no-custom-classname": ["error",
+        {
+          severity: "warn",
+          whitelist: ["content-container"]
+        }
+      ],
     },
   },
   {
