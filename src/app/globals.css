@@ -41,31 +41,19 @@
 }
 
 @utility content-container {
-  & {
-    @apply mx-auto px-4 md:w-lg lg:w-3xl;
-  }
+  @apply mx-auto w-full overflow-x-hidden px-4 md:w-lg lg:w-3xl;
 }
 
-@utility list-depth {
-  & {
-    --depth: 0;
-    --list-depth: 0;
-    --list-item-depth: 0;
-  }
-
-  ul,
-  ol {
-    --list-depth: calc(var(--list-item-depth) + 1);
-  }
-
-  li {
-    --list-item-depth: calc(var(--list-depth));
-  }
-
-  ul,
-  ol,
-  li {
-    --depth: calc(max(var(--list-depth), var(--list-item-depth)));
+.prose {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    > a {
+      @apply inline-block text-inherit no-underline;
+    }
   }
 }
 

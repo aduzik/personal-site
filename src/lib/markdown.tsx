@@ -90,7 +90,7 @@ export default async function formatContent(content: string, options: FormatCont
     remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { contentRoot }]],
     rehypePlugins: [
       rehypeSlug,
-      [rehypeAutolinkHeadings, { behavior: "append" }],
+      [rehypeAutolinkHeadings, { behavior: "wrap" }],
       rehypeKatex,
       addLeadClass,
       rehypeFigure,
