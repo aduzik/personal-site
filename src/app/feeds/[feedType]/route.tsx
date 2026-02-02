@@ -1,5 +1,6 @@
 import { Feed } from "feed";
 
+import authorInfo from "@/lib/authorInfo";
 import { getAllPostItems } from "@/lib/pages";
 import siteMetadata from "@/lib/siteData";
 
@@ -8,6 +9,12 @@ import "next";
 import { NextRequest } from "next/server";
 
 import formatContent from "@/lib/markdown";
+
+export const dynamic = "force-static";
+
+export function generateStaticParams() {
+  return [{ feedType: "rss" }, { feedType: "atom" }, { feedType: "feed.json" }];
+}
 
 export async function GET(_request: NextRequest, { params }: RouteContext<"/feeds/[feedType]">): Promise<Response> {
   const { feedType } = await params;
@@ -30,6 +37,11 @@ export async function GET(_request: NextRequest, { params }: RouteContext<"/feed
   const feed = new Feed({
     title: siteMetadata.title,
     description: siteMetadata.description,
+    author: {
+      name: authorInfo.name,
+      email: authorInfo.email,
+      link: authorInfo.url,
+    },
     copyright: siteMetadata.copyright,
     id: `${siteMetadata.url}/feeds/${feedURL}`,
     link: siteMetadata.url,
@@ -68,6 +80,13 @@ export async function GET(_request: NextRequest, { params }: RouteContext<"/feed
 
     feed.addItem({
       title: post.frontmatter.title,
+      author: [
+        {
+          name: authorInfo.name,
+          email: authorInfo.email,
+          link: authorInfo.url,
+        },
+      ],
       id: itemURL,
       description: post.excerpt,
       content: description,
