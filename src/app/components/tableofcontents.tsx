@@ -12,12 +12,12 @@ export default function TableOfContents({ entries, className, ...rest }: TableOf
     <div className="mb-8 block">
       <div
         className={twMerge(
-          "not-prose list-depth inline-block min-w-75 rounded-md border border-neutral-300 bg-neutral-50 px-6 py-2",
+          "not-prose list-depth inline-block min-w-75 rounded-md border border-neutral-300 bg-neutral-50 px-4 py-2 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100",
           className,
         )}
         {...rest}
       >
-        <h2 className="mb-2 border-b border-neutral-300 pb-2 font-serif text-base font-semibold text-neutral-600">
+        <h2 className="mb-2 border-b border-neutral-300 pb-2 font-serif text-base font-semibold text-neutral-800 dark:border-neutral-600 dark:text-neutral-100">
           Table of Contents
         </h2>
         <div className="text-sm">
@@ -39,7 +39,7 @@ function EntryList({ entries }: { entries: TocEntry[] }) {
             "marker:mr-2 marker:inline-block marker:content-[counters(section,'.',decimal)]",
           )}
         >
-          <a href={`#${id}`} className="inline-block text-emerald-700">
+          <a href={`#${id}`} className="inline-block py-0.5 text-emerald-700 hover:underline dark:text-emerald-500">
             {value}
           </a>
           {children && children.length > 0 && <EntryList entries={children} />}

@@ -1,5 +1,6 @@
 import path from "path";
 import url from "url";
+import React from "react";
 import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -137,9 +138,9 @@ function pruneTOCEntries(entries: TocEntry[] | undefined): TocEntry[] | undefine
 }
 
 function withComponents(Component: MDXContent, defaultComponents: MDXComponents): MDXContent {
-  return ({ components, ...rest }) => {
+  return React.memo(function ContentWithComponents({ components, ...rest }) {
     return <Component {...rest} components={{ ...defaultComponents, ...components }} />;
-  };
+  });
 }
 
 export const defaultComponents: MDXComponents = {
@@ -156,7 +157,7 @@ export const defaultComponents: MDXComponents = {
   ExportedImage,
   YouTube: (props) => (
     <div className="text-center">
-      <div className="inline-block aspect-video overflow-clip rounded-lg shadow-xl shadow-neutral-600/50">
+      <div className="inline-block aspect-video overflow-clip rounded-lg shadow-lg shadow-neutral-600/50 dark:shadow-black/50">
         <YouTube {...props} />
       </div>
     </div>

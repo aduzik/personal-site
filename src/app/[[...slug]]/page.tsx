@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
+import { notFound } from "next/navigation";
 
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
-import { findBySlug, getAllPages } from "@/lib/pages";
+import { findPageBySlug, getAllPageItems } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
 import PageHeader from "../components/pageheader";
@@ -11,7 +12,7 @@ import PageHeader from "../components/pageheader";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const pageData = getAllPages(false);
+  const pageData = getAllPageItems();
 
   const staticParams = pageData.map(({ frontmatter: { slug } }) => ({
     slug: slug === "index" ? [] : [slug],
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: PageProps<"/[[...slug]]">): P
 
   let title: string | undefined = undefined;
   if (slug) {
-    const pageData = findBySlug("pages", slug)!;
+    const pageData = findPageBySlug(slug)!;
     title = pageData.frontmatter.title;
   }
 
@@ -44,9 +45,10 @@ export async function generateMetadata({ params }: PageProps<"/[[...slug]]">): P
 
 export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   const slug = await getPageSlug(params);
-  if (!slug) return null;
+  if (!slug) return notFound();
 
-  const pageData = findBySlug("pages", slug)!;
+  const pageData = findPageBySlug(slug);
+  if (!pageData) return notFound();
 
   const Content = await formatContent(pageData.content, {
     filePath: pageData.filePath,
