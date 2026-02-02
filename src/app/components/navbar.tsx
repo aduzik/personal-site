@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import {
   arrow,
   FloatingArrow,
@@ -14,7 +14,7 @@ import {
 } from "@floating-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { twMerge } from "tailwind-merge";
+import { twJoin, twMerge } from "tailwind-merge";
 
 export type NavBarProps = {
   headerRef?: React.RefObject<HTMLElement | null>;
@@ -75,6 +75,7 @@ export default function NavBar({ headerRef }: NavBarProps) {
     enabled: responsive,
     outsidePress: true,
     escapeKey: true,
+    ancestorScroll: true,
   });
 
   const { getReferenceProps, getFloatingProps } = useInteractions([click, dismiss]);
@@ -127,6 +128,13 @@ export default function NavBar({ headerRef }: NavBarProps) {
     });
   });
 
+  const onClick = useCallback((event: React.MouseEvent<HTMLElement>) => {
+    const nav = navRef.current;
+    if (!nav) return;
+
+    nav.contains(event.target as Node) && setOpen(false);
+  }, []);
+
   const navBarContent: React.ReactNode = (
     <div
       ref={setFloating}
@@ -139,11 +147,11 @@ export default function NavBar({ headerRef }: NavBarProps) {
           } as React.CSSProperties)
         : undefined
       }
-      className={[
-        "group/nav z-10 w-(--available-width) overflow-hidden bg-white/50 shadow-lg backdrop-blur-lg",
-        "md:w-auto md:bg-transparent md:shadow-none md:backdrop-blur-none",
+      className={twJoin(
+        "group/nav z-10 w-(--available-width) overflow-hidden bg-white/50 shadow-lg backdrop-blur-lg dark:bg-black/10",
+        "md:w-auto md:bg-transparent md:shadow-none md:backdrop-blur-none dark:md:bg-transparent",
         "h-0 transition-[height] duration-750 data-[transition=closed]:h-0 data-[transition=open]:h-(--nav-height) md:h-auto",
-      ].join(" ")}
+      )}
       data-transition={status}
     >
       <nav
@@ -154,6 +162,7 @@ export default function NavBar({ headerRef }: NavBarProps) {
             "--index": "0",
           } as React.CSSProperties
         }
+        onClick={onClick}
       >
         <ul className="block md:flex md:flex-row md:gap-x-1">
           <li>
@@ -226,30 +235,30 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
 
   return (
     <span
-      className={[
-        "relative block px-2 py-2 leading-none md:inline-block md:py-0",
+      className={twJoin(
+        "relative block leading-none md:inline-block md:py-0",
         "-translate-y-4 opacity-0 transition-[opacity,transform,translate,rotate,scale] duration-500 ease-out group-data-[transition=open]/nav:translate-y-0 group-data-[transition=open]/nav:opacity-100 group-data-[transition=open]/nav:delay-[calc(var(--index)*150ms+250ms)]",
         "md:translate-y-0 md:opacity-100",
-      ].join(" ")}
+      )}
       ref={setReference}
       {...getReferenceProps()}
     >
       <Link
         href={href}
-        className="group"
+        className="group block"
         aria-current={isActive ? "true" : undefined}
         aria-expanded={open ? "true" : undefined}
       >
         <span
-          className={[
-            "relative inline-block py-2 text-emerald-700",
+          className={twJoin(
+            "relative inline-block py-2 text-emerald-700 text-shadow-black/10 text-shadow-xs dark:text-emerald-500",
             "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:scale-x-0 after:bg-emerald-600 after:content-['']",
             "group-hover:after:scale-x-100 group-hover:after:transition-transform group-hover:after:duration-300 group-aria-[expanded]:after:scale-x-100 group-aria-[expanded]:after:opacity-100",
-          ].join(" ")}
+          )}
         >
           <span
             className={
-              "inline-block text-center group-aria-[current]:font-semibold after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:content-[attr(data-content)]"
+              "inline-block p-2 text-center group-aria-[current]:font-semibold after:invisible after:block after:h-0 after:overflow-hidden after:font-bold after:content-[attr(data-content)]"
             }
             data-content={text}
           >
@@ -262,7 +271,10 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
           <div
             ref={setFloating}
             style={floatingStyles}
-            className="z-20 max-w-64 -translate-y-2 rounded-2xl bg-white/80 p-4 opacity-0 shadow-lg backdrop-blur-lg transition-[opacity,transform,translate,scale,rotate] data-[transition=open]:translate-y-0 data-[transition=open]:opacity-100"
+            className={twJoin(
+              "z-20 max-w-64 -translate-y-2 rounded-2xl bg-white/80 p-4 opacity-0 shadow-lg backdrop-blur-lg dark:bg-black/20",
+              "transition-[opacity,transform,translate,scale,rotate] data-[transition=open]:translate-y-0 data-[transition=open]:opacity-100",
+            )}
             {...getFloatingProps()}
             data-transition={status}
           >
@@ -333,7 +345,7 @@ const HamburgerButton = React.forwardRef<HTMLButtonElement, HamburgerButtonProps
       {...props}
       aria-expanded={expanded ? "true" : undefined}
       ref={buttonRef}
-      className={twMerge("inline-flex h-8 w-8 flex-col items-center justify-center", className)}
+      className={twMerge("-mx-2 inline-flex h-8 w-8 flex-col items-center justify-center p-2", className)}
     >
       <span className="@container relative inline-block h-3 w-4">
         <i className={["absolute inset-x-0 top-0 block h-0.5 origin-center rounded-full bg-neutral-600"].join(" ")} />
