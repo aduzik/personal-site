@@ -66,10 +66,11 @@ const resolveImageSrc: Plugin<[ImageSrcOptions], MdRoot> = ({ contentRoot }) => 
 
 export type FormatContentOptions = {
   filePath: string;
+  ssr?: boolean;
 };
 
 export default async function formatContent(content: string, options: FormatContentOptions): Promise<MDXContent> {
-  const { filePath } = options;
+  const { filePath, ssr = false } = options;
   const root = process.cwd();
   const contentRoot = path.join(root, "content");
 
@@ -106,7 +107,7 @@ export default async function formatContent(content: string, options: FormatCont
   });
 
   const components = {
-    ...defaultComponents,
+    ...createDefaultComponents(ssr),
   } as MDXComponents;
 
   const { toc } = compiledSource.data;
@@ -143,6 +144,34 @@ function withComponents(Component: MDXContent, defaultComponents: MDXComponents)
   });
 }
 
+function createDefaultComponents(ssr: boolean): MDXComponents {
+  const defaultComponents: MDXComponents = {
+    img: async (props) => {
+      const image = (await import(`@content/${props.src}`)).default as StaticImageData;
+
+      const imageProps = {
+        ...props,
+        src: image,
+      };
+
+      // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+      return !ssr ? <ExportedImage {...imageProps} /> : <img {...imageProps} />;
+    },
+    YouTube: (props) => (
+      <div className="text-center">
+        <div className="inline-block aspect-video overflow-clip rounded-lg shadow-lg shadow-neutral-600/50 dark:shadow-black/50">
+          <YouTube {...props} />
+        </div>
+      </div>
+    ),
+  };
+
+  if (!ssr) {
+    defaultComponents.ExportedImage = ExportedImage;
+  }
+
+  return defaultComponents;
+}
 export const defaultComponents: MDXComponents = {
   img: async (props) => {
     const image = (await import(`@content/${props.src}`)).default as StaticImageData;

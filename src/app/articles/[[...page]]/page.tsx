@@ -15,15 +15,21 @@ export async function generateMetadata({ params }: PageProps<"/articles/[[...pag
   const { page } = await params;
   if (isListPage(page)) {
     const pageNumber = getPageNumber(page);
-    return getPageMetadata(!pageNumber ? "Articles" : `Articles - Page ${pageNumber}`);
+    return getPageMetadata(!pageNumber ? "Articles" : `Articles - Page ${pageNumber}`, {
+      linkRSSFeed: true,
+    });
   } else if (typeof page !== "undefined" && page.length === 1) {
     const post = findPostBySlug(page[0]);
     if (post) {
-      return getPageMetadata(post.frontmatter.title);
+      return getPageMetadata(post.frontmatter.title, {
+        linkRSSFeed: true,
+      });
     }
   }
 
-  return getPageMetadata("Articles");
+  return getPageMetadata("Articles", {
+    linkRSSFeed: true,
+  });
 }
 
 export default ArticleIndexPage;

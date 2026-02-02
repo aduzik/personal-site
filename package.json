@@ -18,6 +18,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "@types/mdx": "^2.0.13",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "feed": "^5.2.0",
     "gray-matter": "^4.0.3",
     "next": "16.1.5",
     "next-image-export-optimizer": "^1.20.1",
