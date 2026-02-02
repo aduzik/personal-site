@@ -1,9 +1,9 @@
-import { getAllPosts } from "@/lib/pages";
+import { getAllPostItems } from "@/lib/pages";
 
 export async function generateStaticParams() {
   const itemsPerPage = 1;
 
-  const allPosts = getAllPosts();
+  const allPosts = getAllPostItems();
 
   const pages: string[][] = [];
 

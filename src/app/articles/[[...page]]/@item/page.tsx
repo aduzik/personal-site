@@ -5,7 +5,7 @@ import PageHeader from "@/app/components/pageheader";
 import Prose from "@/app/components/prose";
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
-import { findPostsBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
+import { findPostBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
 
 import { dateFormat } from "../util";
 
@@ -16,7 +16,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
   const slug = page[0];
   if (!isNaN(parseInt(slug))) return null;
 
-  const post = findPostsBySlug(slug);
+  const post = findPostBySlug(slug);
   if (!post) return null;
 
   let heroImage: React.ReactNode | null = null;
@@ -49,7 +49,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
             {nextPost ?
               <Link
                 href={`/articles/${nextPost.frontmatter.slug}`}
-                className="link-backward text-emerald-700 hover:underline"
+                className="link-backward text-emerald-700 hover:underline dark:text-emerald-500"
               >
                 {nextPost.frontmatter.title}
               </Link>
@@ -57,7 +57,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
             {previousPost ?
               <Link
                 href={`/articles/${previousPost.frontmatter.slug}`}
-                className="link-forward text-emerald-700 hover:underline"
+                className="link-forward text-emerald-700 hover:underline dark:text-emerald-500"
               >
                 {previousPost.frontmatter.title}
               </Link>
