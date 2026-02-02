@@ -15,5 +15,6 @@
     "^@/(.*)$",
     "",
     "^[./]"
-  ]
+  ],
+  "tailwindStylesheet": "./src/app/globals.css"
 }
