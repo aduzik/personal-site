@@ -17,27 +17,30 @@ export type RootLayoutProps = React.HTMLAttributes<HTMLElement>;
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>
+      <body className="dark:bg-neutral-900 dark:text-neutral-200">
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
-          <main className="flex grow flex-col">{children}</main>
+          <main className="flex grow flex-col" id="main-content">
+            {children}
+          </main>
           <footer className="mt-auto pt-8">
-            <div className="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600">
+            <div className="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600 dark:text-neutral-400">
               <div>
                 Copyright &copy; {new Date().getFullYear()} {siteData.title}
               </div>
               <div>
-                Made with ❤️ in{" "}
+                Made with ❤️ in
                 <Link
                   href="https://medium.com/@robertloerzel/the-story-of-chicagos-four-star-city-flag-4042dc579cb2"
                   title="Chicago"
+                  className="inline-block"
                 >
                   <ExportedImage
                     src={chicagoFlag}
                     alt="Chicago Flag"
                     height={24}
                     width={36}
-                    className="inline-block"
+                    className="ml-2 inline-block"
                     preload
                     placeholder="empty"
                   />
