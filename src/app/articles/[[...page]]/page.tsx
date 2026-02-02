@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { findPostsBySlug } from "@/lib/pages";
+import { findPostBySlug } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
 import { getPageNumber, isListPage } from "./util";
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps<"/articles/[[...pag
     const pageNumber = getPageNumber(page);
     return getPageMetadata(!pageNumber ? "Articles" : `Articles - Page ${pageNumber}`);
   } else if (typeof page !== "undefined" && page.length === 1) {
-    const post = findPostsBySlug(page[0]);
+    const post = findPostBySlug(page[0]);
     if (post) {
       return getPageMetadata(post.frontmatter.title);
     }

@@ -1,7 +1,5 @@
 import React, { useCallback, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import {
-  arrow,
-  FloatingArrow,
   FloatingPortal,
   offset,
   size,
@@ -33,7 +31,9 @@ export default function NavBar({ headerRef }: NavBarProps) {
   useEffect(() => {
     const mediaQueryList = window.matchMedia("(min-width: 768px)");
 
-    setResponsive(!mediaQueryList.matches);
+    setTimeout(() => {
+      setResponsive(!mediaQueryList.matches);
+    }, 0);
 
     const onChange = (e: MediaQueryListEvent) => {
       setResponsive(!e.matches);
@@ -49,7 +49,6 @@ export default function NavBar({ headerRef }: NavBarProps) {
     context,
     refs: { setReference, setFloating, setPositionReference },
     floatingStyles,
-    update,
     elements: { floating },
   } = useFloating<HTMLDivElement>({
     placement: "bottom",
@@ -101,7 +100,7 @@ export default function NavBar({ headerRef }: NavBarProps) {
     return () => {
       resizeObserver.unobserve(header);
     };
-  }, []);
+  }, [headerRef, setPositionReference]);
 
   useEffect(() => {
     const nav = navRef.current;
@@ -132,7 +131,7 @@ export default function NavBar({ headerRef }: NavBarProps) {
     const nav = navRef.current;
     if (!nav) return;
 
-    nav.contains(event.target as Node) && setOpen(false);
+    if (nav.contains(event.target as Node)) setOpen(false);
   }, []);
 
   const navBarContent: React.ReactNode = (
@@ -197,7 +196,6 @@ type NavBarLinkProps = {
 
 function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
   const [open, setOpen] = useState(false);
-  const arrowRef = React.useRef<SVGSVGElement>(null);
   const { responsive } = useContext(NavBarContext);
   const {
     refs: { setReference, setFloating },
@@ -209,12 +207,7 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
     transform: false,
     open,
     onOpenChange: setOpen,
-    middleware: [
-      arrow({
-        element: arrowRef,
-      }),
-      offset(8),
-    ],
+    middleware: [offset(8)],
   });
 
   const hover = useHover(context, {
@@ -236,7 +229,7 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
   return (
     <span
       className={twJoin(
-        "relative block leading-none md:inline-block md:py-0",
+        "relative block leading-none md:mr-4 md:inline-block md:py-0",
         "-translate-y-4 opacity-0 transition-[opacity,transform,translate,rotate,scale] duration-500 ease-out group-data-[transition=open]/nav:translate-y-0 group-data-[transition=open]/nav:opacity-100 group-data-[transition=open]/nav:delay-[calc(var(--index)*150ms+250ms)]",
         "md:translate-y-0 md:opacity-100",
       )}
@@ -251,9 +244,9 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
       >
         <span
           className={twJoin(
-            "relative inline-block py-2 text-emerald-700 text-shadow-black/10 text-shadow-xs dark:text-emerald-500",
-            "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:scale-x-0 after:bg-emerald-600 after:content-['']",
-            "group-hover:after:scale-x-100 group-hover:after:transition-transform group-hover:after:duration-300 group-aria-[expanded]:after:scale-x-100 group-aria-[expanded]:after:opacity-100",
+            "relative inline-block py-2 text-emerald-700 text-shadow-black/10 dark:text-emerald-500 dark:text-shadow-2xs",
+            "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:scale-x-70 after:bg-emerald-600 after:opacity-0 after:content-['']",
+            "group-hover:after:scale-x-100 group-hover:after:opacity-100 group-hover:after:transition-transform group-hover:after:duration-300 group-aria-[expanded]:after:scale-x-100 group-aria-[expanded]:after:opacity-100",
           )}
         >
           <span
@@ -272,13 +265,12 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
             ref={setFloating}
             style={floatingStyles}
             className={twJoin(
-              "z-20 max-w-64 -translate-y-2 rounded-2xl bg-white/80 p-4 opacity-0 shadow-lg backdrop-blur-lg dark:bg-black/20",
+              "z-20 max-w-64 -translate-y-2 rounded-2xl bg-white/80 p-4 opacity-0 shadow-lg backdrop-blur-lg dark:bg-black/0",
               "transition-[opacity,transform,translate,scale,rotate] data-[transition=open]:translate-y-0 data-[transition=open]:opacity-100",
             )}
             {...getFloatingProps()}
             data-transition={status}
           >
-            <FloatingArrow context={context} ref={arrowRef} className="fill-white/80" />
             <div className="flex flex-col items-center justify-center">{tooltipContent}</div>
           </div>
         </FloatingPortal>
