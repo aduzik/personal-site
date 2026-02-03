@@ -1,13 +1,16 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
 import { notFound } from "next/navigation";
+import { twMerge } from "tailwind-merge";
 
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
 import { findPageBySlug, getAllPageItems } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
+import PageContent from "../components/pagecontent";
 import PageHeader from "../components/pageheader";
+import TableOfContents from "../components/tableofcontents";
 
 export const dynamicParams = false;
 
@@ -50,8 +53,13 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   const pageData = findPageBySlug(slug);
   if (!pageData) return notFound();
 
-  const Content = await formatContent(pageData.content, {
+  const { default: Content, tableOfContents } = await formatContent(pageData.content, {
     filePath: pageData.filePath,
+    components: {
+      TableOfContents: ({ className, ...props }) => (
+        <TableOfContents className={twMerge(className, "md:hidden")} {...props} />
+      ),
+    },
   });
 
   let heroImage: React.ReactNode | null = null;
@@ -65,17 +73,9 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   return (
     <article>
       <PageHeader title={pageData.frontmatter.title} heroImage={heroImage} />
-      <main className="content-container">
-        <div
-          className={[
-            "prose prose-neutral prose-headings:font-serif prose-emerald prose-a:after:inline-block prose-a:link-external:link-arrow prose-a:after:text-xs prose-a:no-underline prose-a:hover:underline mx-auto max-w-none md:w-lg lg:w-3xl",
-            "prose-img:in-prose-figure:rounded prose-img:in-prose-figure:shadow-lg prose-img:in-prose-figure:shadow-neutral-500/50",
-            "prose-figcaption:[counter-increment:figure] prose-figcaption:before:content-['Figure_'counter(figure)'._'] prose-figcaption:before:font-semibold [counter-reset:figure]",
-          ].join(" ")}
-        >
-          <Content />
-        </div>
-      </main>
+      <PageContent tableOfContents={tableOfContents}>
+        <Content />
+      </PageContent>
     </article>
   );
 }

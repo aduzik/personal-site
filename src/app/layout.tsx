@@ -16,9 +16,9 @@ export type RootLayoutProps = React.HTMLAttributes<HTMLElement>;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en">
-      <body>
-        <div className="flex min-h-screen flex-col">
+    <html lang="en" className="scroll-smooth">
+      <body className="dark:bg-neutral-900 dark:text-neutral-200">
+        <div className="flex min-h-screen flex-col" id="page-top">
           <SiteHeader />
           <main className="flex grow flex-col">{children}</main>
           <footer className="mt-auto pt-8">

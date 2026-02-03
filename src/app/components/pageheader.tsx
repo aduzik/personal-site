@@ -24,10 +24,16 @@ export default function PageHeader({ heroImage, title, children }: PageHeaderPro
         {styledHeroImage && <div className="relative col-span-full row-span-full">{styledHeroImage}</div>}
         <div className="relative col-span-full row-[2/-1] flex flex-col justify-center">
           <div className="content-container">
-            {title && <h1 className="text-2xl font-bold text-white text-shadow-lg lg:text-6xl">{title}</h1>}
-            <div className="min-h-4 font-semibold text-white text-shadow-black/40 text-shadow-xs md:min-h-8">
-              {children}
-            </div>
+            {title && (
+              <h1 className="text-2xl font-bold text-white text-shadow-lg lg:text-6xl dark:text-neutral-200">
+                {title}
+              </h1>
+            )}
+            {children && (
+              <div className="min-h-4 font-semibold text-white text-shadow-black/40 text-shadow-xs md:min-h-8">
+                {children}
+              </div>
+            )}
           </div>
         </div>
       </div>
