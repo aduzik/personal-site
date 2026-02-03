@@ -30,18 +30,18 @@ export default function PageContent({ tableOfContents, children, contentFooter }
   return (
     <div className="md:grid md:place-items-center">
       <div
-        className="md:grid md:gap-x-4 md:data-has-toc:grid-cols-[minmax(0,1fr)_var(--container-3xs)] lg:w-5xl"
+        className="md:grid md:gap-x-2 md:data-has-toc:grid-cols-[minmax(0,1fr)_var(--container-3xs)] lg:w-5xl"
         data-has-toc={tableOfContents && tableOfContents.length > 0 ? "true" : undefined}
       >
         <div>
-          <main>
+          <main className="mx-auto max-w-3xl">
             <Prose>{children}</Prose>
           </main>
           {contentFooter && <footer className="mb-8 px-4">{contentFooter}</footer>}
         </div>
-        <aside className="md:flex md:flex-col">
+        <aside className="px-2 md:flex md:flex-col">
           {tableOfContents && tableOfContents.length > 0 && (
-            <div className="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-72 md:sticky md:block">
+            <div className="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-full md:sticky md:block">
               <OnThisPage tableOfContents={tableOfContents} />
             </div>
           )}
@@ -55,7 +55,7 @@ export default function PageContent({ tableOfContents, children, contentFooter }
             <a
               href="#page-top"
               className={twJoin(
-                "m-4 inline-block p-4 text-center text-sm font-semibold text-emerald-700 dark:text-emerald-600",
+                "m-4 inline-block rounded-full bg-transparent p-4 text-center text-sm font-semibold text-emerald-700 backdrop-blur-lg md:backdrop-blur-none dark:text-emerald-600",
                 "before:mr-1 before:inline-block before:content-['↑'] hover:before:-translate-y-2 hover:before:transition-transform",
               )}
             >

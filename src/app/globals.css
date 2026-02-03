@@ -44,7 +44,7 @@
 }
 
 @utility content-container {
-  @apply mx-auto w-full overflow-x-hidden px-4 md:w-lg lg:w-3xl;
+  @apply mx-auto w-full overflow-x-hidden px-4 lg:w-5xl;
 }
 
 .prose {

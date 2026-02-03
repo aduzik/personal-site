@@ -35,22 +35,10 @@ export default async function ArticleListPage({ params }: PageProps<"/articles/[
     <section className="flex grow flex-col">
       <PageHeader title="Articles" heroImage={<ExportedImage src={articlesHero} alt="" fill preload />} />
       <div className="content-container flex grow flex-col justify-between">
-        <main className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <main className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {paginatedPosts.map((post) => (
             <Preview key={post.frontmatter.slug} post={post} />
           ))}
-          {/* {paginatedPosts.map((post) => (
-          //   <article key={post.frontmatter.slug} className="mb-8">
-          //     <h2 className="text-2xl font-bold mb-2 font-serif">
-          //       <a href={`/articles/${post.frontmatter.slug}`} className="text-emerald-700 hover:underline">
-          //         {post.frontmatter.title}
-          //       </a>
-          //     </h2>
-          //     <p className="text-gray-600 text-sm mb-4">{new Date(post.frontmatter.date).toLocaleDateString()}</p>
-          //     <p>{post.excerpt}</p>
-          //   </article>
-          // ))}
-          {/* Pagination Controls */}
         </main>
         <footer className="mt-8 flex justify-between">
           {currentPage > 1 ?

@@ -97,7 +97,7 @@ export default function NavBar() {
         {...getFloatingProps()}
         className={twJoin(
           "group/nav fixed top-(--site-header-height) right-0 left-0 z-20 overflow-hidden bg-white/50 backdrop-blur-lg dark:bg-black/10",
-          "md:static md:w-auto md:bg-transparent md:shadow-none md:backdrop-blur-none dark:md:bg-transparent",
+          "md:static md:w-auto md:bg-transparent md:shadow-none md:backdrop-blur-none md:transition-none dark:md:bg-transparent",
           "h-0 transition-[height] duration-750 data-[transition=closed]:h-0 data-[transition=open]:h-(--nav-height) md:h-auto",
         )}
         data-transition={status}
@@ -170,7 +170,7 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
       className={twJoin(
         "relative block px-4 leading-none md:mr-4 md:inline-block md:px-0 md:py-0",
         "-translate-y-4 opacity-0 transition-[opacity,transform,translate,rotate,scale] duration-500 ease-out group-data-[transition=open]/nav:translate-y-0 group-data-[transition=open]/nav:opacity-100 group-data-[transition=open]/nav:delay-[calc(var(--index)*150ms+250ms)]",
-        "md:translate-y-0 md:opacity-100",
+        "md:translate-y-0 md:opacity-100 md:transition-none",
       )}
       ref={setReference}
       {...getReferenceProps()}
