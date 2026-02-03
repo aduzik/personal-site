@@ -226,12 +226,16 @@ const HamburgerButton = React.forwardRef<HTMLButtonElement, HamburgerButtonProps
   { expanded, className, ...props },
   ref,
 ) {
+  const expandedRef = useRef(expanded);
   const buttonRef = useRef<HTMLButtonElement>(null);
   useImperativeHandle(ref, () => buttonRef.current as HTMLButtonElement);
 
   useEffect(() => {
     const button = buttonRef.current;
     if (!button) return;
+
+    const duration = expandedRef.current === expanded ? 0 : 300;
+    expandedRef.current = expanded;
 
     const topLine = button.querySelector("i:nth-child(1)");
     const middleLine = button.querySelector("i:nth-child(2)");
@@ -244,14 +248,14 @@ const HamburgerButton = React.forwardRef<HTMLButtonElement, HamburgerButtonProps
         { transform: "translateY(5px) rotate(45deg)" },
       ],
       {
-        duration: 300,
+        duration,
         fill: "forwards",
         direction: expanded ? "normal" : "reverse",
         easing: "ease-in-out",
       },
     );
     middleLine?.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 0 }], {
-      duration: 300,
+      duration,
       fill: "forwards",
       direction: expanded ? "normal" : "reverse",
       easing: "ease-in-out",
@@ -263,7 +267,7 @@ const HamburgerButton = React.forwardRef<HTMLButtonElement, HamburgerButtonProps
         { transform: "translateY(-5px) rotate(-45deg)" },
       ],
       {
-        duration: 300,
+        duration,
         fill: "forwards",
         direction: expanded ? "normal" : "reverse",
         easing: "ease-in-out",
