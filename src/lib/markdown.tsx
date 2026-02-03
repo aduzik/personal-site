@@ -10,12 +10,14 @@ import rehypeCallouts from "rehype-callouts";
 import rehypeKatex from "rehype-katex";
 import rehypePrismPlus from "rehype-prism-plus";
 import rehypeSlug from "rehype-slug";
+import sectionize from "@hbsnow/rehype-sectionize";
 import { compile, run } from "@mdx-js/mdx";
 import rehypeFigure from "@microflash/rehype-figure";
 import rehypeExtractToc, { Toc, TocEntry } from "@stefanprobst/rehype-extract-toc";
+import rehypeExportToc from "@stefanprobst/rehype-extract-toc/mdx";
 import type { Root } from "hast";
 import type { Root as MdRoot } from "mdast";
-import { MDXComponents, MDXContent } from "mdx/types";
+import { MDXComponents, MDXContent, MDXModule } from "mdx/types";
 import ExportedImage from "next-image-export-optimizer";
 import { StaticImageData } from "next/image";
 import { Plugin } from "unified";
@@ -67,63 +69,66 @@ const resolveImageSrc: Plugin<[ImageSrcOptions], MdRoot> = ({ contentRoot }) => 
 export type FormatContentOptions = {
   filePath: string;
   ssr?: boolean;
+  components?: MDXComponents;
 };
 
-export default async function formatContent(content: string, options: FormatContentOptions): Promise<MDXContent> {
+export default async function formatContent(content: string, options: FormatContentOptions): Promise<MDXModule> {
   const { filePath, ssr = false } = options;
   const root = process.cwd();
   const contentRoot = path.join(root, "content");
 
-  // const jsx = await compile(content, {
-  //   baseUrl,
-  //   remarkPlugins: [remarkGfm, remarkMath, [resolveImageSrc, { filePath, contentRoot, imagesRoot: "/public/images" }]],
-  //   rehypePlugins: [rehypeKatex, addLeadClass],
-  // });
-  // console.log(jsx);
-
-  const mdxSource = new VFile({
-    path: filePath,
+  const vfile = new VFile({
     value: content,
-    cwd: root,
+    path: filePath,
   });
-  const compiledSource = await compile(mdxSource, {
+  const compiledSource = await compile(vfile, {
     baseUrl: url.pathToFileURL(filePath).href,
     outputFormat: "function-body",
     remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { contentRoot }]],
     rehypePlugins: [
       rehypeSlug,
       [rehypeAutolinkHeadings, { behavior: "wrap" }],
+      sectionize,
       rehypeKatex,
       addLeadClass,
       rehypeFigure,
       [rehypePrismPlus, { showLineNumbers: true }],
       [rehypeCallouts, { theme: "github" }],
       rehypeExtractToc,
+      rehypeExportToc,
     ],
   });
 
-  const { default: Content } = await run(compiledSource, {
+  const mdxModule = await run(compiledSource, {
     ...runtime,
   });
 
+  const { default: Content, tableOfContents, ...rest } = mdxModule;
+
   const components = {
     ...createDefaultComponents(ssr),
+    ...options.components,
   } as MDXComponents;
 
-  const { toc } = compiledSource.data;
-
-  if (toc) {
-    components.TableOfContents = withToc(pruneTOCEntries(toc)!);
+  if (tableOfContents) {
+    components.TableOfContents = withToc(
+      (components.TableOfContents as React.ComponentType<TableOfContentsProps> | undefined) ?? TableOfContents,
+      pruneTOCEntries(tableOfContents)!,
+    );
   }
 
-  return withComponents(Content, components);
+  return {
+    default: withComponents(Content, components),
+    tableOfContents,
+    ...rest,
+  };
 }
 
 // Higher-order components are passe, but since we can't use context in server-side components,
 // it's simpler to create a compone that binds a sepcific ToC to a TableOfContents instance.
-function withToc(entries: Toc) {
+function withToc(TocComponent: React.ComponentType<TableOfContentsProps>, entries: Toc) {
   return function TableOfContentsWithToc(props: Omit<TableOfContentsProps, "entries">) {
-    return <TableOfContents entries={entries} {...props} />;
+    return <TocComponent entries={entries} {...props} />;
   };
 }
 

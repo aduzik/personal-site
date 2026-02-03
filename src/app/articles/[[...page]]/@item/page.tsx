@@ -1,8 +1,8 @@
 import ExportedImage from "next-image-export-optimizer";
 import Link from "next/link";
 
+import PageContent from "@/app/components/pagecontent";
 import PageHeader from "@/app/components/pageheader";
-import Prose from "@/app/components/prose";
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
 import { findPostBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
@@ -26,7 +26,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
     heroImage = image && <ExportedImage src={image} alt="" fill />;
   }
 
-  const Content = await formatContent(post.content, {
+  const { default: Content, tableOfContents } = await formatContent(post.content, {
     filePath: post.filePath,
   });
 
@@ -38,33 +38,35 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
       <PageHeader title={post.frontmatter.title} heroImage={heroImage}>
         <p className="text-sm">Published on {dateFormat.format(new Date(post.frontmatter.date))}</p>
       </PageHeader>
-      <main className="content-container grow">
-        <Prose>
-          <Content />
-        </Prose>
-      </main>
-      {(nextPost || previousPost) && (
-        <footer className="content-container mt-4 mb-8">
-          <div className="flex flex-row justify-between">
-            {nextPost ?
-              <Link
-                href={`/articles/${nextPost.frontmatter.slug}`}
-                className="link-backward text-emerald-700 hover:underline dark:text-emerald-500"
-              >
-                {nextPost.frontmatter.title}
-              </Link>
-            : <div />}
-            {previousPost ?
-              <Link
-                href={`/articles/${previousPost.frontmatter.slug}`}
-                className="link-forward text-emerald-700 hover:underline dark:text-emerald-500"
-              >
-                {previousPost.frontmatter.title}
-              </Link>
-            : <div />}
-          </div>
-        </footer>
-      )}
+      <PageContent
+        tableOfContents={tableOfContents}
+        contentFooter={
+          (nextPost || previousPost) && (
+            <footer className="mt-4 mb-8">
+              <div className="flex flex-row justify-between">
+                {nextPost ?
+                  <Link
+                    href={`/articles/${nextPost.frontmatter.slug}`}
+                    className="link-backward text-emerald-700 hover:underline dark:text-emerald-500"
+                  >
+                    {nextPost.frontmatter.title}
+                  </Link>
+                : <div />}
+                {previousPost ?
+                  <Link
+                    href={`/articles/${previousPost.frontmatter.slug}`}
+                    className="link-forward text-emerald-700 hover:underline dark:text-emerald-500"
+                  >
+                    {previousPost.frontmatter.title}
+                  </Link>
+                : <div />}
+              </div>
+            </footer>
+          )
+        }
+      >
+        <Content />
+      </PageContent>
     </article>
   );
 }
