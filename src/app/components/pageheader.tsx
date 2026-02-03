@@ -29,9 +29,11 @@ export default function PageHeader({ heroImage, title, children }: PageHeaderPro
                 {title}
               </h1>
             )}
-            <div className="min-h-4 font-semibold text-white text-shadow-black/40 text-shadow-xs md:min-h-8">
-              {children}
-            </div>
+            {children && (
+              <div className="min-h-4 font-semibold text-white text-shadow-black/40 text-shadow-xs md:min-h-8">
+                {children}
+              </div>
+            )}
           </div>
         </div>
       </div>

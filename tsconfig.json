@@ -31,7 +31,8 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "tailwind.config.mjs",
-    "src/app/feeds/route.tsx"
+    "src/app/feeds/route.tsx",
+    "src/types/mdx.d.ts"
   ],
   "exclude": ["node_modules"]
 }
