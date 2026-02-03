@@ -56,7 +56,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext<"/feed
   const { renderToReadableStream } = await import("react-dom/server");
 
   for (const post of allPosts.slice(0, 10)) {
-    const Content = await formatContent(post.content, {
+    const { default: Content } = await formatContent(post.content, {
       filePath: post.filePath,
       ssr: true,
     });
@@ -72,7 +72,6 @@ export async function GET(_request: NextRequest, { params }: RouteContext<"/feed
       const { value, done } = await reader.read();
       if (done) break;
       const chunk = decoder.decode(value);
-      console.log(chunk);
       description += chunk;
     }
 
