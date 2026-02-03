@@ -9,9 +9,10 @@ import Prose from "./prose";
 
 export interface PageContentProps extends React.HTMLAttributes<HTMLDivElement> {
   tableOfContents?: Toc;
+  contentFooter?: React.ReactNode;
 }
 
-export default function PageContent({ tableOfContents, children }: PageContentProps) {
+export default function PageContent({ tableOfContents, children, contentFooter }: PageContentProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -28,12 +29,18 @@ export default function PageContent({ tableOfContents, children }: PageContentPr
 
   return (
     <div className="md:grid md:place-items-center">
-      <div className="md:grid md:grid-cols-[minmax(0,1fr)_var(--container-3xs)] md:gap-x-4 lg:w-5xl">
-        <main>
-          <Prose>{children}</Prose>
-        </main>
-        <aside className="md:flex md:flex-col md:justify-between">
-          {tableOfContents && (
+      <div
+        className="md:grid md:gap-x-4 md:data-has-toc:grid-cols-[minmax(0,1fr)_var(--container-3xs)] lg:w-5xl"
+        data-has-toc={tableOfContents && tableOfContents.length > 0 ? "true" : undefined}
+      >
+        <div>
+          <main>
+            <Prose>{children}</Prose>
+          </main>
+          {contentFooter && <footer className="mb-8 px-4">{contentFooter}</footer>}
+        </div>
+        <aside className="md:flex md:flex-col">
+          {tableOfContents && tableOfContents.length > 0 && (
             <div className="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-72 md:sticky md:block">
               <OnThisPage tableOfContents={tableOfContents} />
             </div>
@@ -41,7 +48,7 @@ export default function PageContent({ tableOfContents, children }: PageContentPr
           <div
             className={twJoin(
               "fixed right-0 bottom-0 opacity-0 transition-opacity data-scrolled:opacity-100",
-              "md:sticky",
+              "md:sticky md:mt-auto",
             )}
             data-scrolled={scrolled ? "true" : undefined}
           >

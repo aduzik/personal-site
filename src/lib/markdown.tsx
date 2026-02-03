@@ -22,6 +22,7 @@ import ExportedImage from "next-image-export-optimizer";
 import { StaticImageData } from "next/image";
 import { Plugin } from "unified";
 import { visit } from "unist-util-visit";
+import { VFile } from "vfile";
 
 import TableOfContents, { TableOfContentsProps } from "@/app/components/tableofcontents";
 import YouTube from "@/app/components/youtube";
@@ -76,7 +77,11 @@ export default async function formatContent(content: string, options: FormatCont
   const root = process.cwd();
   const contentRoot = path.join(root, "content");
 
-  const compiledSource = await compile(content, {
+  const vfile = new VFile({
+    value: content,
+    path: filePath,
+  });
+  const compiledSource = await compile(vfile, {
     baseUrl: url.pathToFileURL(filePath).href,
     outputFormat: "function-body",
     remarkPlugins: [remarkGfm, remarkMath, remarkSmartypants, [resolveImageSrc, { contentRoot }]],
