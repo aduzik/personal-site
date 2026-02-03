@@ -1,14 +1,17 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
 import { notFound } from "next/navigation";
+import { twJoin, twMerge } from "tailwind-merge";
 
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
 import { findPageBySlug, getAllPageItems } from "@/lib/pages";
 import { getPageMetadata } from "@/lib/siteData";
 
+import OnThisPage from "../components/onthispage";
 import PageHeader from "../components/pageheader";
 import Prose from "../components/prose";
+import TableOfContents from "../components/tableofcontents";
 
 export const dynamicParams = false;
 
@@ -51,8 +54,13 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   const pageData = findPageBySlug(slug);
   if (!pageData) return notFound();
 
-  const Content = await formatContent(pageData.content, {
+  const { default: Content, tableOfContents } = await formatContent(pageData.content, {
     filePath: pageData.filePath,
+    components: {
+      TableOfContents: ({ className, ...props }) => (
+        <TableOfContents className={twMerge(className, "md:hidden")} {...props} />
+      ),
+    },
   });
 
   let heroImage: React.ReactNode | null = null;
@@ -66,11 +74,33 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   return (
     <article>
       <PageHeader title={pageData.frontmatter.title} heroImage={heroImage} />
-      <main className="content-container">
-        <Prose>
-          <Content />
-        </Prose>
-      </main>
+      <div className="md:grid md:place-items-center">
+        <div className="md:grid md:grid-cols-[minmax(0,1fr)_var(--container-3xs)] md:gap-x-4 lg:w-5xl">
+          <main>
+            <Prose>
+              <Content />
+            </Prose>
+          </main>
+          <aside>
+            {tableOfContents && (
+              <div className="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-72 md:sticky">
+                <OnThisPage tableOfContents={tableOfContents} />
+              </div>
+            )}
+            <div className={twJoin(["fixed right-0 bottom-0"])}>
+              <a
+                href="#page-top"
+                className={twJoin(
+                  "m-4 inline-block p-4 text-center text-sm font-semibold text-emerald-700 dark:text-emerald-600",
+                  "before:mr-1 before:inline-block before:content-['↑'] hover:before:-translate-y-2 hover:before:transition-transform",
+                )}
+              >
+                Back to top
+              </a>
+            </div>
+          </aside>
+        </div>
+      </div>
     </article>
   );
 }

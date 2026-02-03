@@ -26,7 +26,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
     heroImage = image && <ExportedImage src={image} alt="" fill />;
   }
 
-  const Content = await formatContent(post.content, {
+  const { default: Content } = await formatContent(post.content, {
     filePath: post.filePath,
   });
 

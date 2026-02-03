@@ -4,6 +4,9 @@
 @import "katex/dist/katex.min.css";
 @plugin "@tailwindcss/typography";
 
+@theme {
+}
+
 @custom-variant link-external {
   &[href^="http"] {
     @slot;

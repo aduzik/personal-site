@@ -16,37 +16,43 @@ export default function SiteHeader() {
 
     let headerHeight = 0;
 
+    const stylesheet = document.createElement("style");
+    document.head.appendChild(stylesheet);
+
     const observer = new ResizeObserver(() => {
       const { bottom } = header.getBoundingClientRect();
       headerHeight = bottom;
+
+      stylesheet.textContent = `:root { --site-header-height: ${headerHeight}px; }`;
     });
 
-    const onLinkClick = (event: Event) => {
-      const target = event.target as HTMLElement;
-      if (target.tagName !== "A") return;
+    // const onLinkClick = (event: Event) => {
+    //   const target = event.target as HTMLElement;
+    //   if (target.tagName !== "A") return;
 
-      const anchor = target as HTMLAnchorElement;
-      if (!anchor.href || !anchor.hash) return;
+    //   const anchor = target as HTMLAnchorElement;
+    //   if (!anchor.href || !anchor.hash) return;
 
-      const element = document.getElementById(anchor.hash.substring(1));
-      if (!element) return;
+    //   const element = document.getElementById(anchor.hash.substring(1));
+    //   if (!element) return;
 
-      event.preventDefault();
+    //   event.preventDefault();
 
-      setTimeout(() => {
-        const elementRect = element.getBoundingClientRect();
-        window.scrollTo({
-          top: elementRect.top + window.scrollY - headerHeight - 8,
-          behavior: "smooth",
-        });
-      }, 0);
-    };
+    //   setTimeout(() => {
+    //     const elementRect = element.getBoundingClientRect();
+    //     window.scrollTo({
+    //       top: elementRect.top + window.scrollY - headerHeight - 8,
+    //       behavior: "smooth",
+    //     });
+    //   }, 0);
+    // };
 
     observer.observe(header);
-    document.body.addEventListener("click", onLinkClick);
+    // document.body.addEventListener("click", onLinkClick);
 
     return () => {
-      document.body.removeEventListener("click", onLinkClick);
+      stylesheet.remove();
+      // document.body.removeEventListener("click", onLinkClick);
       observer.unobserve(header);
     };
   }, []);
