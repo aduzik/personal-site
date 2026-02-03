@@ -39,7 +39,7 @@ export default function PageContent({ tableOfContents, children, contentFooter }
           </main>
           {contentFooter && <footer className="mb-8 px-4">{contentFooter}</footer>}
         </div>
-        <aside className="px-2 md:flex md:flex-col">
+        <aside className="sticky bottom-0 px-2 md:static md:flex md:flex-col">
           {tableOfContents && tableOfContents.length > 0 && (
             <div className="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-full md:sticky md:block">
               <OnThisPage tableOfContents={tableOfContents} />
@@ -47,8 +47,8 @@ export default function PageContent({ tableOfContents, children, contentFooter }
           )}
           <div
             className={twJoin(
-              "fixed right-0 bottom-0 opacity-0 transition-opacity data-scrolled:opacity-100",
-              "md:sticky md:mt-auto",
+              "text-center opacity-0 transition-opacity data-scrolled:opacity-100",
+              "md:sticky md:bottom-0 md:mt-auto md:text-left",
             )}
             data-scrolled={scrolled ? "true" : undefined}
           >

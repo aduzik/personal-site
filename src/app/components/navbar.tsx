@@ -151,6 +151,7 @@ function NavBarLink({ href, text, tooltipContent }: NavBarLinkProps) {
   });
 
   const hover = useHover(context, {
+    mouseOnly: true,
     restMs: 200,
     delay: {
       close: 500,
