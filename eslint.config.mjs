@@ -1,9 +1,9 @@
 import path from "path";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import reactHooks from "eslint-plugin-react-hooks";
 import tailwind from "eslint-plugin-tailwindcss";
 import unusedImports from "eslint-plugin-unused-imports";
-import reactHooks from 'eslint-plugin-react-hooks';
 import { defineConfig, globalIgnores } from "eslint/config";
 
 const eslintConfig = defineConfig([
@@ -22,12 +22,12 @@ const eslintConfig = defineConfig([
     files: ["**/*.tsx"],
     plugins: {
       "react-hooks": reactHooks,
-    }
+    },
   },
   {
     rules: {
       "@typescript-eslint/no-empty-object-type": "off",
-    }
+    },
   },
   {
     settings: {
@@ -36,11 +36,12 @@ const eslintConfig = defineConfig([
       },
     },
     rules: {
-      "tailwindcss/no-custom-classname": ["error",
+      "tailwindcss/no-custom-classname": [
+        "error",
         {
           severity: "warn",
-          whitelist: ["content-container"]
-        }
+          whitelist: ["content-container"],
+        },
       ],
     },
   },
