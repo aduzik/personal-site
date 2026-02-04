@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "new-post": "node scripts/new-post.mjs",
     "dev": "next dev",
     "build": "next build && next-image-export-optimizer",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write ."
   },
   "dependencies": {
     "@floating-ui/react": "^0.27.17",
