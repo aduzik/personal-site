@@ -1,26 +1,87 @@
 @import "tailwindcss";
+@import "prismjs/themes/prism-tomorrow.css";
+@import "rehype-callouts/theme/github";
+@import "katex/dist/katex.min.css";
+@plugin "@tailwindcss/typography";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@custom-variant link-external {
+  &[href^="http"] {
+    @slot;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility link-arrow {
+  &:after {
+    @apply ml-0.5 inline-block content-['↗'];
+  }
+
+  &:hover:after {
+    @apply translate-x-1 -translate-y-1 transition-transform;
+  }
+}
+
+@utility link-forward {
+  &:after {
+    @apply ml-0.5 inline-block content-['→'];
+  }
+
+  &:hover:after {
+    @apply translate-x-1 transition-transform;
+  }
+}
+
+@utility link-backward {
+  &:before {
+    @apply mr-0.5 inline-block content-['←'];
+  }
+
+  &:hover:before {
+    @apply -translate-x-1 transition-transform;
+  }
+}
+
+@utility content-container {
+  @apply mx-auto w-full overflow-x-hidden px-4 lg:w-5xl;
+}
+
+.prose {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    > a {
+      @apply inline-block text-inherit no-underline;
+    }
+  }
+}
+
+.prose code {
+  &:before {
+    content: "";
+  }
+  &:after {
+    content: "";
+  }
+}
+
+.prose .footnotes {
+  @apply mt-8 border-t border-neutral-300 pt-4;
+}
+
+.prose .data-footnote-backref {
+  @apply inline-block;
+  font-family: ui-sans-serif, system-ui, sans-serif, "Segoe UI Symbol";
+
+  &:hover {
+    @apply rotate-90 no-underline transition-transform;
+  }
+}
+
+.katex {
+  @apply text-lg;
 }
