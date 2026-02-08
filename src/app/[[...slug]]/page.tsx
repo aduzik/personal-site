@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import ExportedImage from "next-image-export-optimizer";
 import { notFound } from "next/navigation";
+import { twMerge } from "tailwind-merge";
 
 import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
@@ -9,6 +10,7 @@ import { getPageMetadata } from "@/lib/siteData";
 
 import PageContent from "../components/pagecontent";
 import PageHeader from "../components/pageheader";
+import TableOfContents from "../components/tableofcontents";
 
 export const dynamicParams = false;
 
@@ -51,10 +53,12 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   const pageData = findPageBySlug(slug);
   if (!pageData) return notFound();
 
-  const { default: Content } = await formatContent(pageData.content, {
+  const { default: Content, tableOfContents } = await formatContent(pageData.content, {
     filePath: pageData.filePath,
     components: {
-      TableOfContents: () => null,
+      TableOfContents: ({ className, ...props }) => (
+        <TableOfContents className={twMerge(className, "md:hidden")} {...props} />
+      ),
     },
   });
 
@@ -69,7 +73,7 @@ export default async function Page({ params }: PageProps<"/[[...slug]]">) {
   return (
     <article>
       <PageHeader title={pageData.frontmatter.title} heroImage={heroImage} />
-      <PageContent>
+      <PageContent tableOfContents={tableOfContents}>
         <Content />
       </PageContent>
     </article>

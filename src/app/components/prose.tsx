@@ -52,10 +52,10 @@ export default function Prose({ children, className, ...props }: ProseProps) {
     <div
       {...props}
       className={twMerge(
-        "prose mb-8 max-w-full overflow-hidden prose-neutral prose-emerald dark:prose-invert prose-headings:font-serif prose-a:no-underline prose-a:after:inline-block prose-a:after:text-xs prose-a:hover:underline prose-a:link-external:link-arrow",
+        "prose mb-8 max-w-full overflow-x-hidden px-4 prose-neutral prose-emerald dark:prose-invert prose-headings:font-serif prose-a:no-underline prose-a:after:inline-block prose-a:after:text-xs prose-a:hover:underline prose-a:link-external:link-arrow",
         "prose-headings:scroll-mt-[calc(var(--site-header-height)+1rem)] prose-a:scroll-mt-[calc(var(--site-header-height)+1rem)]",
         "prose-img:in-prose-figure:rounded prose-img:in-prose-figure:shadow-lg prose-img:in-prose-figure:shadow-neutral-500/50 dark:prose-img:in-prose-figure:shadow-black/50",
-        "prose-figure:overflow-x-auto prose-pre:overflow-x-auto prose-pre:text-xs",
+        "prose-figure:overflow-x-auto prose-pre:overflow-x-auto",
         "[counter-reset:figure] prose-figcaption:[counter-increment:figure] prose-figcaption:before:font-semibold prose-figcaption:before:content-['Figure_'counter(figure)'._']",
         className,
       )}

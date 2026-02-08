@@ -23,7 +23,7 @@ export default function PageHeader({ heroImage, title, children }: PageHeaderPro
       <div className="grid h-36 grid-rows-[4rem_auto] lg:h-60">
         {styledHeroImage && <div className="relative col-span-full row-span-full">{styledHeroImage}</div>}
         <div className="relative col-span-full row-[2/-1] flex flex-col justify-center">
-          <div className="content-container overflow-hidden">
+          <div className="content-container">
             {title && (
               <h1 className="text-2xl font-bold text-white text-shadow-lg lg:text-6xl dark:text-neutral-200">
                 {title}
