@@ -74,7 +74,7 @@
 }
 
 .prose .data-footnote-backref {
-  @apply inline-block;
+  @apply -mx-2 inline-block px-2;
   font-family: ui-sans-serif, system-ui, sans-serif, "Segoe UI Symbol";
 
   &:hover {
@@ -84,4 +84,9 @@
 
 .katex {
   @apply text-lg;
+}
+
+.prose code[class*="language-"],
+.prose pre[class*="language-"] {
+  font-size: var(--text-sm);
 }
