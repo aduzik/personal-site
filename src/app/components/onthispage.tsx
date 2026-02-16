@@ -98,12 +98,12 @@ export default function OnThisPage({ tableOfContents }: OnThisPageProps) {
         ref={listRef}
         className={twJoin(
           "relative pl-6 text-sm text-neutral-800 dark:text-neutral-200",
-          "before:absolute before:left-0 before:translate-y-(--indicator-top) before:leading-loose before:font-bold before:text-emerald-700 before:transition-transform before:content-['→'] dark:before:text-emerald-500",
+          "before:absolute before:left-0 before:translate-y-(--indicator-top) before:font-bold before:text-emerald-700 before:transition-transform before:content-['→'] dark:before:text-emerald-500",
         )}
       >
         {tableOfContents.map(({ id, value }) => (
           <li key={id} data-section-id={id} className="aria-current:font-bold dark:aria-current:text-neutral-100">
-            <a href={`#${id}`} className="block leading-loose">
+            <a href={`#${id}`} className="mb-1.5 block">
               {value}
             </a>
           </li>
