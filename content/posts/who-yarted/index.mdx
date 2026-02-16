@@ -1,16 +1,351 @@
 ---
 title: "Who Yarted?"
 slug: "who-yarted"
-date: "2026-01-26"
+date: "2026-02-16"
 heroImage: "./brussels-sprouts.jpg"
 ---
 
-This is my lead paragraph.
+A result type is value type that represents either the success or the failure of an operation. The basic idea here is
+that we can have, in essence, multiple return types. If the operation succeeds, great! You get a return value (or none),
+same as any other function. But when things go south, you'll get an error that gives you some indication of what went
+wrong.
 
 {/* excerpt */}
 
-<YouTube videoId="-ERjkuU2twk" />
+# Isn't that just exceptions with extra steps?
 
-Let's just make sure figures look OK in dark mode.
+Nope! But it certainly feels like there's a lot of overlap here. The crucial distinction here, and the thing I hope you
+take away from this post, is this:
 
-![Brussels sprouts](./brussels-sprouts.jpg)
+> Exceptions are for _exceptional_ circumstances. Result types are for _expected outcomes_.
+
+Huh? What? OK, let's do a little example to illustrate. Suppose you've built a RESTful API for creating user accounts on
+your website. Something like this:
+
+```
+POST /api/users
+{
+  "email": "test@example.com",
+  "password": "SuperSecretPassword"
+}
+```
+
+We all expect that account creation should fail if the user already exists. So somewhere, deep in the recesses of your
+code, you might have something like this:
+
+```csharp
+public async ValueTask<User> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
+{
+  if (userRepository.FindByEmailAsync(request.Email, cancellationToken) != null)
+  {
+    throw new InvalidOperationException("A user already exists for the provided email address.")
+  }
+
+  // continue like normal
+
+  return user;
+}
+```
+
+OK, great. If the user tries to register the same account twice, it'll prevent that with an exception. Invariants are
+preserved, everyone's happy. "So what's your beef, Duzik?" I hear you ask. Well, what if the reason creation fails is
+because the database became unavailble? In this universe, that's also an exception. And in either case, upstream both
+outcomes will look largely the same, and the method signature doesn't communicate which exceptions are thrown. You'll
+have to hope it's documented. What's more, handling exceptions is optional, so you _can_ make a decision about how to
+handle invalid requests, but you don't _have_ to if you don't want to.
+
+# Let's try this another way
+
+Now let's see what it looks like with a result type.
+
+```csharp
+public async ValueTask<Result<User, CreateUserError>> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
+{
+  if (userRepository.FindByEmailAsync(request.Email, cancellationToken) != null)
+  {
+    return Result.Error(UserError.AccountAlreadyExists(request.Email));
+  }
+
+  // continue like normal
+
+  return user;
+}
+```
+
+"But Alex", I hear you say, "you've changed the return type. I'm gonna have to handle that return value differently in
+the calling code." Imagine now that I'm looking directly into the camera and making a Jim Halpert face. Yeah, that's
+exactly the point.
+
+Exceptions are a flow control mechanism. They're a ripcord we can pull when something fails in a way we can't handle.
+But a result type describes scenarios that we expect to happen, so we also expect our callers to do something about
+them. Unlike exceptions, results are written into the contract of the method.
+
+|                                    | Exceptions                             | Results                                                |
+| ---------------------------------- | -------------------------------------- | ------------------------------------------------------ |
+| **Use case**                       | Bailing out of unhandle-able scenarios | Communicating expected outcomes, even undesirable ones |
+| **Who done goofed?**               | The developer, the system              | The user                                               |
+| **How to communicate to consumer** | Documentation, prayer, luck            | Return type                                            |
+
+I really want to emphasize this last bit: by promoting the result type into the method's contract, we're telling our
+consumers something about how it works. Java makes you document exceptions you throw, even those that flow through from
+other method calls, with a `throws` expression in the method signature. C#, for better _and_ worse, doesn't make us do
+that. The thing is, `CreateUserAsync` always could have failed. The logic is identical in both examples. But a method
+that only throws exceptions doesn't communicate as clearly with consumers as it could. We're not really doing anything
+new, we're just being more explicit about how this always worked.
+
+This concept isn't nearly as alien as it might first appear. You're already using results in lots of places. Remember
+that this was all happening in the context of a web API request. When you call a web API, you expect the HTTP status
+code to tell you about the outcome. If it succeeds, you'd expect a `2xx` status code[^status-codes], but if it fails,
+you'd expect maybe a `400 Bad Request` response. What's more, you expect the body of a success response to look
+different from the body of a failure.
+
+With deepest apologies to (the ghost of) Leo Tolstoy, it's the [Anna Karenina principle][anna-karenina] applied to
+return values. To wit:
+
+> All happy families _(sucessful results)_ are alike; every unhappy family _(error)_ is unhappy _(erroneous)_ in its own
+> way
+
+# Let's see it in context
+
+Here's what it looks like to call a method that returns a result:[^example-disclaimer]
+
+```csharp
+[HttpPost(Name = nameof(CreateUser))]
+[Produces<User>(StatusCode = Status201Created)]
+// oh hey look the return type has 'Result' right in the name...
+public async Task<ActionResult<User>> CreateUser(CreateUserRequest request, CancellationToken cancellationToken)
+{
+  var result = await userService.CreateUser(request, cancellationToken);
+
+  return result.Match<ActionResult<User>>(
+    success: (user) => CreatedAtRoute(nameof(GetUser), new { id = user.Id }, user),
+    failure: (error) => error switch {
+      AccountAlreadyExists accountExists => Problem($"An account already exists for '${accountExists.Email}'"),
+      _ => InternalServerError(),
+    }
+  );
+}
+```
+
+Does this really look _that_ much different from a `try/catch` block? I don't think so. And the advantage here is
+twofold: the result type requires you to handle failures, and the type also guides you toward proper usage. You can't
+just return `result` as-is. You have to unwrap it, and one of the options is `Match`, which works like an exhaustive
+`switch` statement. And then, inside `Match`, it's crystal clear which branch is which. The `switch` expression on the
+failure branch is a style choice, but I like it because it steers you toward a completely exhaustive response, and
+that's just good manners/less likely to blow up in prod.
+
+# Yet _another_ result type
+
+It is a truth universally acknowledged that a programmer in possession of a belief in result types, must be in want of
+one of their own.[^jane-austen]
+
+[So anyway, here's mine.][yart-repo] It's called "Yart", for "Yet Another Result Type". The fact that the name rhymes
+with "fart" was a key element of its appeal. Here are my design principles:
+
+- **It has to be easy to use.** You shouldn't have to think too hard about it when using it. As much as possible, it
+  should just work like any other return type.
+- **It shouldn't impose a lot of overhead.** Since these are really just thin wrappers around your existing return types
+  (plus a slot for a potential error), `struct`s are a perfect choice for avoiding unnecessary allocations.
+- **You shouldn't feel like you're using a library.** The best libaries are the ones that feel like they're part of the
+  platform. They're idiomatic and feel natural. Names and syntax are important. Crucial, even.
+- **The `Error` type shouldn't be too fussy or too opinionated.** In .NET, the it's never been as common to implement
+  custom exception types as it maybe should be, but with Errors, we intentionally don't give you a base error library so
+  that you'll have to use your own. This isn't as scary as it sounds.
+
+`Result` is actually _two_ results:[^unit-result] `Result<TError>` and `Result<T, TError>`, depending on whether you
+have a return value for successful results. However, for simplicity's sake, all the static factory methods live on a
+separate `Result` so that you don't have to type awkward stuff like `Result<CreateUserError>.Failure(error)`.
+`Result.Failure(errror)` will give you the correct `Result<CreateUserError>` value you want.
+
+There are also, like, a lot of implicit cast operators. If your method returns `Result<UserDto, CreateUserError>`, then
+you can just return a `user` or an `error` and Yart takes care of the packaging for you. Normally implicit cast
+operators are a terrible idea because they lead to secret, sneaky behaviors. But here I think they work to improve the
+feel of your code because they work eliminate some unnecessary gunk around your return values.
+
+I also spent a lot of time thinking about how the error types should work. Should there be a base class you inherit
+from? Should `Result` be generic over some error type? After considering all the trade-offs, I decided that the the
+simplest errors are the best errors.
+
+An early version started with an `Error` abstract class that held a message, just like an `Exception`, but I ultimately
+decided that, really, formatting is not what we're concerned with here. Instead, I felt that errors are really just
+data. Turning those errors into messages is for the consumer to decide. The type should communicate the error and any
+pertinent facts. The only requirement I ended up imposing is that they should implement a simple `IError` marker
+interface. And even then, that's only to ensure that error types are distinct from others.
+
+Is this production-ready code? Probably not! It's similar to something I've written elsewhere, but like the first rule
+of government spending: [why build one when you can have two for twice the price?][contact] Nevertheless, feel free to
+check out the repo and give it a whirl. And, when the desire to write your own result type inevitably overwhelms you,
+you'll have an example to scoff at and think, "I can do better than this clown" as you fire up Visual Studio.
+
+## A quick sidebar about error types
+
+Having played around with this for a little while, I've developed a sort of style for errors that I've come to like.
+Here's an example:
+
+```csharp
+public abstract record CreateUserError : IError
+{
+  public static CreateUserError AccountAlreadyExists(string email) => new AccountAlreadyExists(email);
+  public static CreateUserError PasswordNotStrongEnough() => new PasswordNotStrongEnough();
+  // ...factory methods for other error types
+
+  // And now the actual error types
+  public record AccountAlreadyExistsError(string Email) : CreateUserError;
+  public record PasswordNotStrongEnoughError : CreateUserError;
+}
+```
+
+You define a base type for the errors. I like `record`s for this, mainly because you get the primary constructors with
+auto-properties for free. Deconstruction might also be valuable, but really, I mainly chose records to communicate "this
+is just some data". I like to make it abstract since it's mostly here to act as a namespace for the concrete error
+types.
+
+Then you define your errors. One record type apiece. When type definitions are one-liners, it'd be silly not to make all
+the types you want. I like to use nested types for this because again, the base error type mainly acts as a namespace,
+so you can use IntelliSense on the base type to help you figure out what kinds of errors you need to handle. Again, all
+of this is dealer's choice, but this is a pattern I like.
+
+Finally, I like static factory methods for creating the errors. It reads so much more fluently to write:
+
+```csharp
+return CreateUserError.AccountAlreadyExists(email);
+```
+
+Or even better:
+
+```csharp
+using static CreateUserError;
+
+// ... many lines of code ...
+
+return AccountAlreadyExists(email);
+
+```
+
+It also addresses a practical concern. Since the `Result` family of types are structs, you can't take advantage of
+covariance. That is, a `Result<CreateUserError.AccountAlreadyExistsError>` is not assignable to
+`Result<CreateUserError>`, and there's no way I can find to define an implicit cast operator to handle that. The static
+factory methods loosen their return types to `CreateUserError`, which sidesteps this whole problem.
+
+You also don't need a lot of ceremony here. For errors that are only used with a single class, go ahead and define them
+alongside the class in the same file. I won't tell. Failing that, sure, put them in their own files. Or heck, even a
+catch-all `Errors.cs` file per assembly. We don't have to be too precious.
+
+But the key takeaways here are that:
+
+- **Errors are just data.** Unlike exceptions, they don't carry a string representation. Give them whatever properties
+  make sense for them to have, or none at all.
+- **They can have any shape you like.** Thanks to the `record` syntax, it's incredibly straightforward to define errors
+  in a single line. The static constructor is a second line, but who knows, maybe that's a great use case for a source
+  generator someone's already working on…
+
+Also, if you're as impatient as I am about discriminated unions in C#, you might notice that these look a lot like
+discriminated unions. That's not a coincidence. DUs are terrific. Maybe one of my favorite TypeScript features.
+
+Finally finally, when it comes to handling errors, leverage `switch` expressions and pattern matching syntax. For
+example, I could have written the `CreateUserError` handler like this:
+
+```csharp
+  return result.Match<ActionResult<User>>(
+    success: (user) => CreatedAtRoute(nameof(GetUser), new { id = user.Id }, user),
+    failure: (error) => error switch {
+      AccountAlreadyExists { Email: var email } => Problem($"An account already exists for '${email}'"),
+      _ => InternalServerError(),
+    }
+  );
+```
+
+For a simple error like `AccountAlreadyExists`, that's maybe not worth the effort, but if the value you want is nested
+several objects deep, you need to use a value multiple times, or you want to behave conditionally based on some aspect
+of the error, pattern matching is ideal.
+
+# I speak fluent `Result`
+
+One of the nicest things about result types in general, and Yart in particular, is that they often support chaining via
+operators. Consider a pretty typical sequence:
+
+1. Validate some input
+2. Attempt to perform an operation using the input
+3. Trigger some side effect on a successful operation
+4. Return the result
+
+Here's how you can do this with Yart.
+
+```csharp
+public async ValueTask<Result<UserDto, CreateUserError>> CreateUserAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
+{
+  var result = await createUserRequestValidator
+    .ValidateAsync(request)  // Returns Result<CreateUserValidationError>
+    .AndThenAsync(           // called only when Validate() succeeds
+      async () =>
+      {
+        // returns Result<UserDto, CreateUserError>
+        return await userService.CreateUserAsync(request, cancellationToken);
+      })
+    .InspectAsync(           // called only if CreateUserAsync() succeeds
+      async (userDto) =>
+      {
+        // we won't report a failure if the welcome email isn't sent.
+        await notificationService.SendWelcomeEmailAsync(userDto, cancellationToken);
+      });
+
+  return result;
+}
+
+```
+
+This fluent style of chaining sort of gives you the best of all worlds here. I stole this idea from Rust and I'm _not_
+sorry. It's a good idea!
+
+The code reads down the left side of the page, and the method names clearly communicate your intent. You might sound a
+_little_ bit like an over-sugared six year old who's buttonholed you at a family get-together explaining a cartoon
+you've never seen but is the literal center of their universe ("and then! and then! and then!") but honestly? You could
+do a lot worse! Also, that's charming and we all did the same thing at that age.
+
+In any event, the goal here is to make writing with results to feel natural. The more it feels like regular ol' code,
+the more likely you are to use it.
+
+---
+
+I've noticed a tendency to dismiss this results pattern as disruptive, unnecessary, or a solution in search of a
+problem. I really disagree. I see results as an evolution in expressiveness in the frameworks we use. It gives us a sort
+of language-within-a-language to express concepts that don't have dedicated language syntax. And like any pattern, once
+you recognize it, it has semantics you can immediately grasp.
+
+The results pattern is not a replacement for exception handling. It's not trying to be. Results are complementary to
+exceptions. You should absolutely still be throwing exceptions for exceptional events. But for more quotidian outcomes?
+Think about results instead.
+
+I've seen objections that exceptions have such a convenient control flow mechanism that there's no reason to grapple
+with seemingly less-capable results instead. I haven't touched on the performance implications of exceptions, but they
+exist. But what's more, the exception control flow is exactly the reason I wouldn't recommend them for the scenarios
+where I'd use results. Used properly, the errors we return in results are the sorts of things consumers _should_ have to
+make choices about when things go wrong.
+
+This is all of a piece with the idea that our applications should strive toward literacy and fluency. Remember: code is
+for people first.
+
+[anna-karenina]: https://en.wikipedia.org/wiki/Anna_Karenina_principle
+[yart-repo]: https://github.com/aduzik/Yart
+[contact]: https://www.youtube.com/watch?v=VTUrdizRZyw
+
+[^status-codes]:
+    Ideally, this would be a `201 Created` with a `Location` header giving the canonical resource URL for the created
+    entity. I see a lot of APIs returning `200 OK`, which isn't wrong _per se_, but it's less specific.
+
+[^example-disclaimer]:
+    Don't get too hung up on the particulars of this example. It's not trying to be great code. I'm just trying to
+    demonstrate potential usage here.
+
+[^jane-austen]: Again, deeply sorry for these terrible paraphrases.
+
+[^unit-result]: Actually, there's a third, the unit `Result` type. It serves two purposes:
+
+    1. **It hosts static factory methods.** That way you don't have to qualify these methods with their generic types.
+       You can write `Result.Failure(ErrorType.MakeAnError())` and you'll get a proper `Result<ErrorType>`. You can also
+       make `Result` a static using and not even have to qualify the methods.
+    2. **It serves as a basic success-only result type.** This exists so that you can implicitly cast it to any
+       error-only result type. That lets you write `return Result.Ok()` without needing to specify the error type.
+
+    Also, while you're down here, I want to mention that I was slightly amused the whole time I was working on this
+    because `TError` is just the word "terror", and I wrote it so many times.
