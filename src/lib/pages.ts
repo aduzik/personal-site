@@ -26,8 +26,10 @@ export interface Post extends ContentItem {
     title: string;
     slug: string;
     date: string;
+    summary?: string;
     tags?: string[];
     heroImage?: string;
+    draft?: boolean;
   };
 }
 
@@ -93,6 +95,9 @@ const posts = createItemType("post", {
     return {
       slug: item.frontmatter.slug,
     };
+  },
+  filter(item: Post) {
+    return item.frontmatter.draft !== true;
   },
 });
 
