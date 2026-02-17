@@ -42,7 +42,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
         tableOfContents={tableOfContents}
         contentFooter={
           (nextPost || previousPost) && (
-            <footer className="mt-4 mb-8">
+            <div className="mt-4 mb-8">
               <div className="flex flex-row justify-between">
                 {nextPost ?
                   <Link
@@ -61,7 +61,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
                   </Link>
                 : <div />}
               </div>
-            </footer>
+            </div>
           )
         }
       >
