@@ -7,7 +7,7 @@ import { importImage } from "@/lib/images";
 import formatContent from "@/lib/markdown";
 import { findPostBySlug, getNextPost, getPreviousPost } from "@/lib/pages";
 
-import { dateFormat } from "../util";
+import { formatDate } from "../util";
 
 export default async function ArticlePage({ params }: PageProps<"/articles/[[...page]]">) {
   const { page } = await params;
@@ -36,7 +36,7 @@ export default async function ArticlePage({ params }: PageProps<"/articles/[[...
   return (
     <article className="flex grow flex-col">
       <PageHeader title={post.frontmatter.title} heroImage={heroImage}>
-        <p className="text-sm">Published on {dateFormat.format(new Date(post.frontmatter.date))}</p>
+        <p className="text-sm">Published on {formatDate(post.frontmatter.date)}</p>
       </PageHeader>
       <PageContent
         tableOfContents={tableOfContents}

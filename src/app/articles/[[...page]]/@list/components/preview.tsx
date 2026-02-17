@@ -4,7 +4,7 @@ import Link from "next/link";
 import { importImage } from "@/lib/images";
 import { Post } from "@/lib/pages";
 
-import { dateFormat } from "../../util";
+import { formatDate } from "../../util";
 
 export interface PreviewProps extends Omit<React.HTMLAttributes<HTMLElement>, "children"> {
   post: Post;
@@ -38,8 +38,8 @@ export default async function Preview({ post, ...props }: PreviewProps) {
             </div>
           </div>
         </Link>
-        <p className="mb-4 text-sm text-gray-600">{dateFormat.format(new Date(post.frontmatter.date))}</p>
-        <p>{post.excerpt}</p>
+        <p className="mb-4 text-sm text-gray-600">{formatDate(post.frontmatter.date)}</p>
+        <p>{post.frontmatter.summary ?? post.excerpt}</p>
       </header>
     </article>
   );

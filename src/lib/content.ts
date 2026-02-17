@@ -147,6 +147,8 @@ class FileWatcher implements Watcher {
       withFileTypes: true,
     });
 
+    const populatedItemTypes = new Set<AnyItemTypeReturn>();
+
     for (const entry of entries) {
       if (!entry.isFile()) continue;
 
@@ -156,10 +158,15 @@ class FileWatcher implements Watcher {
       for (const itemType of this.itemTypes) {
         if (itemType.match(relativePath)) {
           await itemType.populate(relativePath);
+          populatedItemTypes.add(itemType);
           break;
         }
       }
     }
+
+    populatedItemTypes.forEach((itemType) => {
+      itemType.sort();
+    });
 
     // don't await this.watch() to keep the watcher running
     this.watch();
@@ -180,12 +187,17 @@ class FileWatcher implements Watcher {
       const absolutePath = path.join(root, filename);
       const relativePath = path.relative(root, absolutePath);
 
+      const populatedItemTypes = new Set<AnyItemTypeReturn>();
+
       for (const itemType of this.itemTypes) {
         if (itemType.match(relativePath)) {
           await itemType.populate(relativePath);
+          populatedItemTypes.add(itemType);
           break;
         }
       }
+
+      populatedItemTypes.forEach((type) => type.sort());
     }
   }
 
