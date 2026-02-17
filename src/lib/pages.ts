@@ -99,6 +99,11 @@ const posts = createItemType("post", {
   filter(item: Post) {
     return item.frontmatter.draft !== true;
   },
+  sortOptions: {
+    compare: ({ frontmatter: { date: leftDate } }, { frontmatter: { date: rightDate } }) =>
+      Date.parse(leftDate) - Date.parse(rightDate),
+    order: "desc",
+  },
 });
 
 await createWatcher({
