@@ -6,6 +6,7 @@ export interface ItemTypeOptions<T> {
   matchPath: RegExp;
   getItem(relativePath: string): Promise<T>;
   getItemMetdata(item: T): ItemMetadata;
+  filter?(item: T): boolean;
   sortOptions?: {
     compare(a: T, b: T): number;
     order?: "asc" | "desc";
@@ -62,6 +63,12 @@ export function createItemType<Type extends string, T>(
     },
     async populate(relativePath: string): Promise<void> {
       const item = await options.getItem(relativePath);
+
+      if (typeof options.filter !== "undefined") {
+        const include = options.filter(item);
+        if (!include) return;
+      }
+
       items.push(item);
       const metadata = options.getItemMetdata(item);
       slugMap.set(metadata.slug, item);
