@@ -2,14 +2,13 @@ import path from "path";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import reactHooks from "eslint-plugin-react-hooks";
-import tailwind from "eslint-plugin-tailwindcss";
-import unusedImports from "eslint-plugin-unused-imports";
 import { defineConfig, globalIgnores } from "eslint/config";
+import baseConfig from '../../eslint.config.mjs';
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  ...tailwind.configs["flat/recommended"],
+  ...baseConfig,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -25,43 +24,12 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    rules: {
-      "@typescript-eslint/no-empty-object-type": "off",
-    },
-  },
-  {
     settings: {
       tailwindcss: {
         config: path.join(process.cwd(), "tailwind.config.mjs"),
       },
     },
-    rules: {
-      "tailwindcss/no-custom-classname": [
-        "error",
-        {
-          severity: "warn",
-          whitelist: ["content-container"],
-        },
-      ],
-    },
-  },
-  {
-    plugins: {
-      "unused-imports": unusedImports,
-    },
-    rules: {
-      "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": [
-        "warn",
-        {
-          vars: "all",
-          varsIgnorePattern: "^_",
-          args: "after-used",
-          argsIgnorePattern: "^_",
-        },
-      ],
-    },
-  },
+  }
 ]);
 
 export default eslintConfig;

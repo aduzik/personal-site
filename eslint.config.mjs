@@ -1,40 +1,16 @@
-import path from "path";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-import reactHooks from "eslint-plugin-react-hooks";
 import tailwind from "eslint-plugin-tailwindcss";
 import unusedImports from "eslint-plugin-unused-imports";
-import { defineConfig, globalIgnores } from "eslint/config";
+import { defineConfig } from "eslint/config";
 
 const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
   ...tailwind.configs["flat/recommended"],
   // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-  {
-    files: ["**/*.tsx"],
-    plugins: {
-      "react-hooks": reactHooks,
-    },
-  },
   {
     rules: {
       "@typescript-eslint/no-empty-object-type": "off",
     },
   },
   {
-    settings: {
-      tailwindcss: {
-        config: path.join(process.cwd(), "tailwind.config.mjs"),
-      },
-    },
     rules: {
       "tailwindcss/no-custom-classname": [
         "error",
