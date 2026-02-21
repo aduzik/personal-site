@@ -2,6 +2,8 @@
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
 export async function getStaticPaths() {
   const articles = await getCollection("articles", ({ data }) => !data.draft);
   return articles.map((entry) => ({
@@ -17,31 +19,23 @@ const {
 } = entry;
 ---
 
-<html lang="en">
-  <head>
-    <title>{title}</title>
-  </head>
-  <body>
-    <main>
-      <article>
-        <header>
-          <h1>{title}</h1>
-          <time datetime={date.toISOString()}>{date.toLocaleDateString()}</time>
-          {
-            heroImage ?
-              <Image
-                src={heroImage}
-                alt=""
-                widths={[640, 960, 1280]}
-                sizes="(min-width: 1024px) 960px, 100vw"
-                format="webp"
-              />
-            : null
-          }
-        </header>
-
-        <Content />
-      </article>
-    </main>
-  </body>
-</html>
+<BaseLayout title={entry.data.title}>
+  <article>
+    <header>
+      <h1>{title}</h1>
+      <time datetime={date.toISOString()}>{date.toLocaleDateString()}</time>
+      {
+        heroImage ?
+          <Image
+            src={heroImage}
+            alt=""
+            widths={[640, 960, 1280]}
+            sizes="(min-width: 1024px) 960px, 100vw"
+            format="webp"
+          />
+        : null
+      }
+    </header>
+    <Content />
+  </article>
+</BaseLayout>
