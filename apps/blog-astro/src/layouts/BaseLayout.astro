@@ -1,4 +1,9 @@
 ---
+import "../styles/global.css";
+
+import ChicagoFlag from "../assets/images/chicagoflag.svg";
+import site from "../site";
+
 interface Props {
   title: string;
   description?: string;
@@ -8,16 +13,34 @@ const { title, description } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="utf-8" />
-    <title>{title}</title>
+    <title>{title ? `Alex Duzik - ${title}` : "Alex Duzik"}</title>
     {description && <meta name="description" content={description} />}
     <meta name="viewport" content="width=device-width" />
   </head>
-  <body>
-    <main>
+  <body class="flex min-h-screen flex-col" id="page-top">
+    <main class="flex grow flex-col" id="main-content">
       <slot />
     </main>
+    <footer class="mt-auto pt-8">
+      <div class="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600 dark:text-neutral-400">
+        <div>
+          Copyright &copy; {new Date().getFullYear()}
+          {site.title}
+        </div>
+        <div class="inline-flex flex-row items-center">
+          Made with ❤️ in
+          <a
+            href="https://medium.com/@robertloerzel/the-story-of-chicagos-four-star-city-flag-4042dc579cb2"
+            title="Chicago"
+            class="inline-block ml-2"
+          >
+            <img src={ChicagoFlag.src} width="36" height="24" alt="Chicago Flag" />
+          </a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

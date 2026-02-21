@@ -10,7 +10,14 @@
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
-    "astro": "^5.17.1"
+    "@astrojs/tailwind": "^6.0.2",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.2.0",
+    "astro": "^5.17.1",
+    "katex": "^0.16.28",
+    "prismjs": "^1.30.0",
+    "rehype-callouts": "^2.1.2",
+    "tailwindcss": "^4.2.0"
   },
   "devDependencies": {
     "prettier-plugin-astro": "^0.14.1"
