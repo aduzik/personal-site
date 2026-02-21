@@ -1,5 +1,6 @@
-{
-  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+/** @type{import('prettier').Config} */
+const config = {
+  "plugins": ["@ianvs/prettier-plugin-sort-imports"],
   "experimentalTernaries": true,
   "tabWidth": 2,
   "printWidth": 120,
@@ -7,14 +8,12 @@
   "proseWrap": "always",
   "quoteProps": "as-needed",
   "importOrder": [
-    "^react(.*)$",
-    "^(@[^/]+)?remark-(.*)$",
-    "^(@[^/]+)?rehype-(.*)$",
     "<THIRD_PARTY_MODULES>",
     "",
     "^@/(.*)$",
     "",
     "^[./]"
   ],
-  "tailwindStylesheet": "./src/app/globals.css"
 }
+
+export default config;
