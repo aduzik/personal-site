@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+
+import headerImage from "../../assets/images/articles.jpg";
+import ArticlePreview from "../../components/ArticlePreview.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const articles = await getCollection("articles", (post) => !post.data.draft);
+articles.sort(({ data: { date: left } }, { data: { date: right } }) => left.getTime() - right.getTime());
+---
+
+<BaseLayout title="Articles">
+  <section class="flex grow flex-col">
+    <PageHeader title="Articles" heroImage={headerImage} />
+    <div class="content-container flex grow flex-col justify-between">
+      <main class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {articles.map((post) => <ArticlePreview entry={post} />)}
+      </main>
+    </div>
+  </section>
+</BaseLayout>
