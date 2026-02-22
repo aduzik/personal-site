@@ -1,0 +1,23 @@
+---
+import { twJoin } from "tailwind-merge";
+
+import site from "../site";
+import NavBar from "./NavBar.astro";
+---
+
+<header
+  class={twJoin(
+    "sticky top-0 z-20 shadow-sm",
+    "before:absolute before:inset-0 before:bg-white/70 before:backdrop-blur-md before:dark:bg-black/20",
+  )}
+  id="site-header"
+>
+  <div
+    class="relative content-container flex h-16 flex-row items-center justify-between gap-x-4 py-2 md:justify-normal"
+  >
+    <h1 class="font-serif text-lg leading-none text-neutral-800 text-shadow-sm md:text-2xl dark:text-neutral-200">
+      <a href="/" class="inline-block px-2 py-1"> {site.title}</a>
+    </h1>
+    <NavBar siteHeaderId="site-header" />
+  </div>
+</header>

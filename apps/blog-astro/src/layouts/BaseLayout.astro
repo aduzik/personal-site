@@ -2,6 +2,7 @@
 import "../styles/global.css";
 
 import ChicagoFlag from "../assets/images/chicagoflag.svg";
+import SiteHeader from "../components/SiteHeader.astro";
 import site from "../site";
 
 interface Props {
@@ -20,27 +21,35 @@ const { title, description } = Astro.props;
     {description && <meta name="description" content={description} />}
     <meta name="viewport" content="width=device-width" />
   </head>
-  <body class="flex min-h-screen flex-col" id="page-top">
-    <main class="flex grow flex-col" id="main-content">
-      <slot />
-    </main>
-    <footer class="mt-auto pt-8">
-      <div class="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600 dark:text-neutral-400">
-        <div>
-          Copyright &copy; {new Date().getFullYear()}
-          {site.title}
+  <body class="dark:bg-neutral-900 dark:text-neutral-200">
+    <div class="flex min-h-screen flex-col" id="page-top">
+      <SiteHeader />
+      <main class="flex grow flex-col" id="main-content">
+        <slot />
+      </main>
+      <footer class="mt-auto pt-8">
+        <div
+          class="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600 dark:text-neutral-400"
+        >
+          <div>
+            Copyright &copy; {new Date().getFullYear()}
+            {site.title}
+          </div>
+          <div class="inline-flex flex-row items-center">
+            Made with ❤️ in
+            <a
+              href="https://medium.com/@robertloerzel/the-story-of-chicagos-four-star-city-flag-4042dc579cb2"
+              title="Chicago"
+              class="inline-block ml-2"
+            >
+              <img src={ChicagoFlag.src} width="36" height="24" alt="Chicago Flag" />
+            </a>
+          </div>
         </div>
-        <div class="inline-flex flex-row items-center">
-          Made with ❤️ in
-          <a
-            href="https://medium.com/@robertloerzel/the-story-of-chicagos-four-star-city-flag-4042dc579cb2"
-            title="Chicago"
-            class="inline-block ml-2"
-          >
-            <img src={ChicagoFlag.src} width="36" height="24" alt="Chicago Flag" />
-          </a>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </div>
+    <script>
+      import "../scripts/nav-controller";
+    </script>
   </body>
 </html>

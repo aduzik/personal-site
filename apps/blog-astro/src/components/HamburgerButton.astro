@@ -1,0 +1,74 @@
+---
+interface Props {
+  menuId: string;
+}
+
+const { menuId } = Astro.props;
+---
+
+<button
+  type="button"
+  class="md:hidden -mx-2 inline-flex h-8 w-8 flex-col items-center justify-center p-2 hamburger-button"
+  data-toggle-nav={menuId}
+>
+  <span class="@container relative inline-block h-3 w-4">
+    <i class="absolute inset-x-0 top-0 block h-0.5 origin-center rounded-full bg-neutral-600"></i>
+    <i class="absolute inset-x-0 top-1/2 -mt-px block h-0.5 origin-center rounded-full bg-neutral-600"></i>
+    <i class="absolute inset-x-0 bottom-0 block h-0.5 origin-center rounded-full bg-neutral-600"></i>
+  </span>
+  <span class="sr-only">Toggle menu</span>
+</button>
+
+<script>
+  function updateButtonState(button: HTMLButtonElement, expanded: boolean) {
+    button.ariaExpanded = expanded ? "true" : null;
+    const duration = 300;
+
+    const topLine = button.querySelector("i:nth-child(1)")!;
+    const middleLine = button.querySelector("i:nth-child(2)")!;
+    const bottomLine = button.querySelector("i:nth-child(3)")!;
+
+    topLine?.animate(
+      [
+        { transform: "translateY(0px) rotate(0deg)" },
+        { transform: "translateY(5px) rotate(0deg)" },
+        { transform: "translateY(5px) rotate(45deg)" },
+      ],
+      {
+        duration,
+        fill: "forwards",
+        direction: expanded ? "normal" : "reverse",
+        easing: "ease-in-out",
+      },
+    );
+    middleLine?.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 0 }], {
+      duration,
+      fill: "forwards",
+      direction: expanded ? "normal" : "reverse",
+      easing: "ease-in-out",
+    });
+    bottomLine?.animate(
+      [
+        { transform: "translateY(0px) rotate(0deg)" },
+        { transform: "translateY(-5px) rotate(0deg)" },
+        { transform: "translateY(-5px) rotate(-45deg)" },
+      ],
+      {
+        duration,
+        fill: "forwards",
+        direction: expanded ? "normal" : "reverse",
+        easing: "ease-in-out",
+      },
+    );
+
+    console.log("Clicked hamburger", button);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>(".hamburger-button").forEach((button) => {
+    const navBar = document.getElementById(button.dataset.toggleNav!)!;
+    navBar.addEventListener("nav:state", (e) => {
+      const { open } = e.detail;
+      updateButtonState(button, open);
+    });
+  });
+</script>
