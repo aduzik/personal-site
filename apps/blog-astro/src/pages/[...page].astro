@@ -1,0 +1,35 @@
+---
+import type { GetStaticPathsResult } from "astro";
+import { getCollection, render } from "astro:content";
+
+import PageHeader from "../components/PageHeader.astro";
+import Prose from "../components/Prose.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages", (page) => !page.data.draft);
+  const paths = pages.map((page) => ({
+    params: { page: page.data.slug !== "index" ? page.data.slug : undefined },
+    props: { page },
+  }));
+
+  console.log(paths);
+  return paths;
+}
+
+const { page } = Astro.props;
+const {
+  data: { title, heroImage },
+  id,
+  body,
+} = page;
+
+const { Content } = await render(page);
+---
+
+<BaseLayout title={title}>
+  <PageHeader title={title} heroImage={heroImage} />
+  <Prose class="md:max-w-3xl md:mx-auto px-4 md:px-0">
+    <Content />
+  </Prose>
+</BaseLayout>
