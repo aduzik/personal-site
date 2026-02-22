@@ -14,7 +14,7 @@ const { title, description } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en" class="scroll-smooth scroll-mt-(--header-size)">
   <head>
     <meta charset="utf-8" />
     <title>{title ? `Alex Duzik - ${title}` : "Alex Duzik"}</title>
@@ -50,6 +50,26 @@ const { title, description } = Astro.props;
     </div>
     <script>
       import "../scripts/nav-controller";
+      import "../scripts/siteheader-controller";
+    </script>
+    <script>
+      import { getHeaderSize, getSiteHeader } from "../scripts/siteheader-controller";
+
+      const siteHeader = getSiteHeader();
+      if (siteHeader) {
+        siteHeader.addEventListener("siteheader:resize", (e) => {
+          document.documentElement.style.setProperty("--site-header-height", `${e.detail.bottom}px`);
+        });
+      }
+
+      document.addEventListener("readystatechange", (e) => {
+        if (document.readyState === "complete") {
+          const size = getHeaderSize();
+          if (size) {
+            document.documentElement.style.setProperty("--site-header-height", `${size}px`);
+          }
+        }
+      });
     </script>
   </body>
 </html>

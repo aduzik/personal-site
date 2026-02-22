@@ -1,8 +1,8 @@
 ---
-import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import { twJoin } from "tailwind-merge";
 
+import OnThisPage from "../../components/OnThisPage.astro";
 import PageHeader from "../../components/PageHeader.astro";
 import Prose from "../../components/Prose.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
@@ -17,7 +17,9 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
+const result = await render(entry);
+console.log("Result", result);
+const { Content, headings } = result;
 const {
   data: { title, date, heroImage },
 } = entry;
@@ -38,7 +40,15 @@ const {
       </main>
       <aside
         class="sticky bottom-0 px-2 md:static md:col-[2/3] md:row-span-full md:flex md:flex-col md:place-self-stretch"
+        data-page-sidebar
       >
+        {
+          headings.length > 0 && (
+            <div class="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-full md:sticky md:block">
+              <OnThisPage headings={headings} />
+            </div>
+          )
+        }
         <div
           class={twJoin(
             "text-center opacity-0 transition-opacity data-scrolled:opacity-100",
@@ -72,4 +82,19 @@ const {
       }
     });
   });
+
+  const siteHeader = document.querySelector<HTMLElement>("[data-site-header]");
+  const sidebar = document.querySelector<HTMLElement>("[data-page-sidebar]");
+
+  if (sidebar) {
+    if (siteHeader) {
+      const resizeObserver = new ResizeObserver(() => {
+        const { bottom: siteHeaderHeight } = siteHeader.getBoundingClientRect();
+        sidebar.style.setProperty("--site-header-height", `${Math.round(siteHeaderHeight)}px`);
+      });
+      resizeObserver.observe(siteHeader);
+    } else {
+      sidebar.style.setProperty("--site-header-height", "0px");
+    }
+  }
 </script>

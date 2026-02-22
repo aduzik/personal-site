@@ -1,0 +1,143 @@
+---
+import type { MarkdownHeading } from "astro";
+import { twJoin } from "tailwind-merge";
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const headings = Astro.props.headings.filter(({ depth }) => depth === 1);
+---
+
+<nav>
+  <h5 class="data-active:bold mb-2 font-serif text-lg font-semibold text-neutral-800 dark:text-neutral-200">
+    On this page
+  </h5>
+  <ol
+    class={twJoin(
+      "relative pl-6 text-sm text-neutral-800 dark:text-neutral-200",
+      "before:absolute before:left-0 before:translate-y-(--indicator-top) before:font-bold before:text-emerald-700 before:transition-transform before:content-['→'] dark:before:text-emerald-500",
+    )}
+    data-on-this-page
+  >
+    {
+      headings.map(({ slug, text }) => (
+        <li data-section-id={slug} class="aria-current:font-bold dark:aria-current:text-neutral-100">
+          <a href={`#${slug}`} class="mb-1.5 block">
+            {text}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script>
+  import { getHeaderSize, getSiteHeader } from "../scripts/siteheader-controller";
+
+  document.querySelectorAll<HTMLElement>("[data-on-this-page]").forEach((toc) => {
+    const sectionIds: string[] = [];
+
+    const sectionsToIds = new WeakMap<HTMLElement, string>();
+    const headingsToIds = new WeakMap<HTMLElement, string>();
+
+    const headingIntersections = new Map<string, IntersectionObserverEntry>();
+    const sectionIntersections = new Map<string, IntersectionObserverEntry>();
+
+    function getCurrentSectionId() {
+      if (sectionIds.length === 0) return null;
+
+      let firstVisibleHeading: string | null = null;
+      let firstVisibleSection: string | null = null;
+
+      for (const id of sectionIds) {
+        const headingIntersection = headingIntersections.get(id);
+        if (headingIntersection?.isIntersecting && !firstVisibleHeading) {
+          firstVisibleHeading = id;
+          break;
+        }
+
+        const sectionIntersection = sectionIntersections.get(id);
+        if (sectionIntersection?.isIntersecting && !firstVisibleSection) {
+          firstVisibleSection = id;
+        }
+      }
+
+      const selectedSection = firstVisibleHeading ?? firstVisibleSection ?? sectionIds[0];
+      return selectedSection;
+    }
+
+    function selectCurrentSection() {
+      const selectedSection = getCurrentSectionId();
+      if (!selectedSection) return;
+
+      const listItem = toc.querySelector(`[data-section-id=${selectedSection}]`);
+      if (!listItem) return;
+
+      const { top: itemTop } = listItem.getBoundingClientRect();
+      const { top: listTop } = toc.getBoundingClientRect();
+
+      const arrowOffset = Math.round(Math.max(0, itemTop - listTop));
+      toc.style.setProperty("--indicator-top", `${arrowOffset}px`);
+    }
+
+    function createObserver(headerOffset: number = 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const target = entry.target as HTMLElement;
+
+            const headingId = headingsToIds.get(target);
+            if (headingId) {
+              headingIntersections.set(headingId, entry);
+            }
+
+            const sectionId = sectionsToIds.get(target);
+            if (sectionId) {
+              sectionIntersections.set(sectionId, entry);
+            }
+          });
+
+          selectCurrentSection();
+        },
+        {
+          rootMargin: `${-headerOffset}px 0px 0px 0px`,
+        },
+      );
+
+      toc.querySelectorAll<HTMLElement>("[data-section-id]").forEach((item) => {
+        const sectionId = item.dataset.sectionId!;
+        sectionIds.push(sectionId);
+
+        const heading = document.getElementById(sectionId);
+        if (!heading) return;
+
+        headingsToIds.set(heading, sectionId);
+        observer.observe(heading);
+
+        const section = heading.closest("section");
+        if (!section) return;
+
+        sectionsToIds.set(section, sectionId);
+        observer.observe(section);
+      });
+
+      return observer;
+    }
+
+    const siteHeaderSize = getHeaderSize();
+    let observer = createObserver(siteHeaderSize ?? 0);
+    const siteHeader = getSiteHeader();
+
+    if (siteHeader) {
+      siteHeader.addEventListener("siteheader:resize", (e) => {
+        const {
+          detail: { bottom },
+        } = e;
+
+        observer?.disconnect();
+        observer = createObserver(bottom);
+      });
+    }
+  });
+</script>
