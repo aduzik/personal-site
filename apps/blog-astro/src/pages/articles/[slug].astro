@@ -5,6 +5,7 @@ import { twJoin } from "tailwind-merge";
 import OnThisPage from "../../components/OnThisPage.astro";
 import PageHeader from "../../components/PageHeader.astro";
 import Prose from "../../components/Prose.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { formatDate } from "../../util";
 
@@ -34,6 +35,7 @@ const {
       class="mx-auto w-screen grow px-4 md:grid md:grid-cols-[minmax(0,1fr)_var(--container-3xs)] md:grid-rows-[1fr_min-content] md:gap-4 md:px-0 lg:w-5xl"
     >
       <main class="md:col-[1/2] md:row-[1/2]">
+        {headings.length > 0 && <TableOfContents headings={headings} class="md:hidden" />}
         <Prose>
           <Content />
         </Prose>
