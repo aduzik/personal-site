@@ -10,6 +10,7 @@ import rehypeSectionize from '@hbsnow/rehype-sectionize';
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://aduzik.com/",
   integrations: [mdx({
     remarkPlugins: [
       remarkMath,

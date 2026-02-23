@@ -1,6 +1,8 @@
 ---
 import "../styles/global.css";
 
+import { ClientRouter } from "astro:transitions";
+
 import ChicagoFlag from "../assets/images/chicagoflag.svg";
 import SiteHeader from "../components/SiteHeader.astro";
 import site from "../site";
@@ -14,12 +16,15 @@ const { title, description } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth scroll-mt-(--header-size)">
+<html lang="en" class="scroll-smooth scroll-mt-(--header-size)" transition:animate="initial">
   <head>
     <meta charset="utf-8" />
     <title>{title ? `Alex Duzik - ${title}` : "Alex Duzik"}</title>
     {description && <meta name="description" content={description} />}
     <meta name="viewport" content="width=device-width" />
+    <meta name="title" content={title} />
+    {description && <meta name="description" content={description} />}
+    <ClientRouter />
   </head>
   <body class="dark:bg-neutral-900 dark:text-neutral-200">
     <div class="flex min-h-screen flex-col" id="page-top">
@@ -62,12 +67,10 @@ const { title, description } = Astro.props;
         });
       }
 
-      document.addEventListener("readystatechange", (e) => {
-        if (document.readyState === "complete") {
-          const size = getHeaderSize();
-          if (size) {
-            document.documentElement.style.setProperty("--site-header-height", `${size}px`);
-          }
+      document.addEventListener("astro:page-load", (e) => {
+        const size = getHeaderSize();
+        if (size) {
+          document.documentElement.style.setProperty("--site-header-height", `${size}px`);
         }
       });
     </script>
