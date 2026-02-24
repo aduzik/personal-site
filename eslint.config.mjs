@@ -1,9 +1,13 @@
+import prettierConfig from "eslint-config-prettier/flat";
+import prettierPlugin from "eslint-plugin-prettier/recommended";
 import tailwind from "eslint-plugin-tailwindcss";
 import unusedImports from "eslint-plugin-unused-imports";
 import { defineConfig } from "eslint/config";
 
 const eslintConfig = defineConfig([
   ...tailwind.configs["flat/recommended"],
+  prettierPlugin,
+  prettierConfig,
   // Override default ignores of eslint-config-next.
   {
     rules: {

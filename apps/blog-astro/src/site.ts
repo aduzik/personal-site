@@ -1,3 +1,3 @@
 export default {
-  title: "Alex Duzik"
+  title: "Alex Duzik",
 } as const;
