@@ -13,6 +13,13 @@
   }
 }
 
+@custom-variant hover-focus {
+  &:hover,
+  &:focus-visible {
+    @slot;
+  }
+}
+
 @utility link-arrow {
   &:after {
     @apply ml-0.5 inline-block content-['↗'];
@@ -45,6 +52,12 @@
 
 @utility content-container {
   @apply mx-auto w-full overflow-x-hidden px-4 lg:w-5xl;
+}
+
+@utility mask-link-icon {
+  --mask-image-url: url("@fluentui/svg-icons/icons/link_24_regular.svg");
+  @apply mask-(--mask-image-url);
+  @apply mask-no-repeat mask-center mask-contain bg-current;
 }
 
 .prose {

@@ -25,8 +25,6 @@
     "gray-matter": "^4.0.3",
     "next": "16.1.5",
     "next-image-export-optimizer": "^1.20.1",
-    "prettier": "^3.8.1",
-    "prettier-plugin-tailwindcss": "^0.7.2",
     "prismjs": "^1.30.0",
     "raw-loader": "^4.0.2",
     "react": "19.2.3",
@@ -43,6 +41,7 @@
     "remark-smartypants": "^3.0.2",
     "sharp": "^0.34.5",
     "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4",
     "vfile": "^6.0.3"
   },
   "devDependencies": {
@@ -55,7 +54,6 @@
     "eslint-config-next": "16.1.5",
     "eslint-plugin-tailwindcss": "^4.0.0-beta.0",
     "eslint-plugin-unused-imports": "^4.3.0",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
