@@ -24,6 +24,7 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="title" content={title} />
     {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <ClientRouter />
   </head>
   <body class="dark:bg-neutral-900 dark:text-neutral-200">
