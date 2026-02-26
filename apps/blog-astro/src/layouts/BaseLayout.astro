@@ -1,0 +1,79 @@
+---
+import "../styles/global.css";
+
+import { ClientRouter } from "astro:transitions";
+
+import ChicagoFlag from "../assets/images/chicagoflag.svg";
+import SiteHeader from "../components/SiteHeader.astro";
+import site from "../site";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth scroll-mt-(--header-size)" transition:animate="initial">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title ? `Alex Duzik - ${title}` : "Alex Duzik"}</title>
+    {description && <meta name="description" content={description} />}
+    <meta name="viewport" content="width=device-width" />
+    <meta name="title" content={title} />
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <ClientRouter />
+  </head>
+  <body class="dark:bg-neutral-900 dark:text-neutral-200">
+    <div class="flex min-h-screen flex-col" id="page-top">
+      <SiteHeader />
+      <main class="flex grow flex-col" id="main-content">
+        <slot />
+      </main>
+      <footer class="mt-auto pt-8">
+        <div
+          class="content-container flex flex-row justify-between pb-4 text-sm text-neutral-600 dark:text-neutral-400"
+        >
+          <div>
+            Copyright &copy; {new Date().getFullYear()}
+            {site.title}
+          </div>
+          <div class="inline-flex flex-row items-center">
+            Made with ❤️ in
+            <a
+              href="https://medium.com/@robertloerzel/the-story-of-chicagos-four-star-city-flag-4042dc579cb2"
+              title="Chicago"
+              class="inline-block ml-2"
+            >
+              <img src={ChicagoFlag.src} width="36" height="24" alt="Chicago Flag" />
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+    <script>
+      import "../scripts/nav-controller";
+      import "../scripts/siteheader-controller";
+    </script>
+    <script>
+      import { getHeaderSize, getSiteHeader } from "../scripts/siteheader-controller";
+
+      const siteHeader = getSiteHeader();
+      if (siteHeader) {
+        siteHeader.addEventListener("siteheader:resize", (e) => {
+          document.documentElement.style.setProperty("--site-header-height", `${e.detail.bottom}px`);
+        });
+      }
+
+      document.addEventListener("astro:page-load", (e) => {
+        const size = getHeaderSize();
+        if (size) {
+          document.documentElement.style.setProperty("--site-header-height", `${size}px`);
+        }
+      });
+    </script>
+  </body>
+</html>

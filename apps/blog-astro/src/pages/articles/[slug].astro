@@ -1,0 +1,100 @@
+---
+import { getCollection, render } from "astro:content";
+import { twJoin } from "tailwind-merge";
+
+import OnThisPage from "../../components/OnThisPage.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import Prose from "../../components/Prose.astro";
+import TableOfContents from "../../components/TableOfContents.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { formatDate } from "../../util";
+
+export async function getStaticPaths() {
+  const articles = await getCollection("articles", ({ data }) => !data.draft);
+  return articles.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const {
+  data: { title, date, heroImage },
+} = entry;
+---
+
+<BaseLayout title={entry.data.title}>
+  <article>
+    <PageHeader title={title} heroImage={heroImage}>
+      <p class="text-sm">Published on <time datetime={date.toISOString()}>{formatDate(date)}</time></p>
+    </PageHeader>
+    <div
+      class="mx-auto w-screen grow px-4 md:grid md:grid-cols-[minmax(0,1fr)_var(--container-3xs)] md:grid-rows-[1fr_min-content] md:gap-4 md:px-0 lg:w-5xl"
+    >
+      <main class="md:col-[1/2] md:row-[1/2]">
+        {headings.length > 0 && <TableOfContents headings={headings} class="md:hidden" />}
+        <Prose>
+          <Content />
+        </Prose>
+      </main>
+      <aside
+        class="sticky bottom-0 px-2 md:static md:col-[2/3] md:row-span-full md:flex md:flex-col md:place-self-stretch"
+        data-page-sidebar
+      >
+        {
+          headings.length > 0 && (
+            <div class="top-[calc(var(--site-header-height)+1rem)] mt-8 hidden w-full md:sticky md:block">
+              <OnThisPage headings={headings} />
+            </div>
+          )
+        }
+        <div
+          class={twJoin(
+            "text-center opacity-0 transition-opacity data-scrolled:opacity-100",
+            "md:sticky md:bottom-0 md:mt-auto md:text-left",
+          )}
+          data-back-to-top
+        >
+          <a
+            href="#page-top"
+            class={twJoin(
+              "m-4 inline-block rounded-full bg-transparent p-4 text-center text-sm font-semibold text-emerald-700 backdrop-blur-lg md:backdrop-blur-none dark:text-emerald-600",
+              "before:mr-1 before:inline-block before:content-['↑'] hover:before:-translate-y-2 hover:before:transition-transform",
+            )}
+          >
+            Back to top
+          </a>
+        </div>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll("[data-back-to-top]").forEach((backToTop) => {
+    window.addEventListener("scroll", (e) => {
+      const scroll = document.documentElement.scrollTop || document.body.scrollTop;
+      if (scroll > 500) {
+        backToTop.setAttribute("data-scrolled", "true");
+      } else {
+        backToTop.removeAttribute("data-scrolled");
+      }
+    });
+  });
+
+  const siteHeader = document.querySelector<HTMLElement>("[data-site-header]");
+  const sidebar = document.querySelector<HTMLElement>("[data-page-sidebar]");
+
+  if (sidebar) {
+    if (siteHeader) {
+      const resizeObserver = new ResizeObserver(() => {
+        const { bottom: siteHeaderHeight } = siteHeader.getBoundingClientRect();
+        sidebar.style.setProperty("--site-header-height", `${Math.round(siteHeaderHeight)}px`);
+      });
+      resizeObserver.observe(siteHeader);
+    } else {
+      sidebar.style.setProperty("--site-header-height", "0px");
+    }
+  }
+</script>

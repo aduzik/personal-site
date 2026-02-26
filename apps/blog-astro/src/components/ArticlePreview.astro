@@ -1,0 +1,47 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+import { formatDate } from "../util";
+
+interface Props {
+  entry: CollectionEntry<"articles">;
+}
+
+const {
+  entry: {
+    data: { title, slug, date, heroImage, description, excerpt },
+  },
+} = Astro.props;
+
+const previewText = description ?? excerpt;
+---
+
+<article>
+  <header>
+    <a href={`/articles/${slug}`} class="block" aria-label={title}>
+      <div class="group relative mb-4 grid h-48 overflow-hidden rounded-md bg-neutral-200 shadow-sm shadow-black/60">
+        {
+          heroImage && (
+            <Image
+              src={heroImage}
+              alt=""
+              class="relative col-span-full row-span-full object-cover brightness-80 transition-all group-hover:brightness-90 h-full"
+              widths={[320, 480, 640]}
+              sizes="(min-width: 768px) 240px, 100vw"
+            />
+          )
+        }
+        <div class="z-20 col-span-full row-span-full flex flex-col justify-end p-4">
+          <h2
+            class="font-serif text-2xl font-bold text-white text-shadow-black/40 text-shadow-sm group-hover:underline"
+          >
+            {title}
+          </h2>
+        </div>
+      </div>
+    </a>
+    <p class="mb-4 text-sm text-gray-600">{formatDate(date)}</p>
+    {previewText && <p>{previewText}</p>}
+  </header>
+</article>

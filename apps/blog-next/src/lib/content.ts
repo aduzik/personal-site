@@ -1,10 +1,14 @@
 import fs from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface ItemTypeOptions<T> {
   rootPath: string;
   matchPath: RegExp;
-  getItem(relativePath: string): Promise<T>;
+  getItem(relativePath: string, content: string): Promise<T>;
   getItemMetdata(item: T): ItemMetadata;
   filter?(item: T): boolean;
   sortOptions?: {
@@ -20,7 +24,7 @@ export interface ItemMetadata {
 type ItemTypeReturn<Type extends string, T> = {
   type: Type;
   match(path: string): boolean;
-  populate(path: string): Promise<void>;
+  populate(path: string, content: string): Promise<void>;
   getAll(): T[];
   findBySlug(slug: string): T | null;
   findByFilePath(filePath: string): T | null;
@@ -61,8 +65,8 @@ export function createItemType<Type extends string, T>(
     match(filePath: string): boolean {
       return filePath.toLowerCase().startsWith(options.rootPath.toLowerCase()) && options.matchPath.test(filePath);
     },
-    async populate(relativePath: string): Promise<void> {
-      const item = await options.getItem(relativePath);
+    async populate(relativePath: string, content: string): Promise<void> {
+      const item = await options.getItem(relativePath, content);
 
       if (typeof options.filter !== "undefined") {
         const include = options.filter(item);
@@ -139,8 +143,10 @@ class FileWatcher implements Watcher {
     if (this.started) throw new Error("Watcher has already been started.");
     this.started = true;
 
-    const root = this.options.root || process.cwd();
-    const contentRoot = this.options.contentRoot || path.join(root, "content");
+    const root = this.options.root || __dirname;
+    const contentRoot = this.options.contentRoot || path.join(__dirname, "content");
+
+    // console.log('ROOT', root, 'CONTENT', contentRoot);
 
     const entries = await fs.readdir(contentRoot, {
       recursive: true,
@@ -157,7 +163,8 @@ class FileWatcher implements Watcher {
 
       for (const itemType of this.itemTypes) {
         if (itemType.match(relativePath)) {
-          await itemType.populate(relativePath);
+          const content = await fs.readFile(absolutePath, "utf-8");
+          await itemType.populate(relativePath, content);
           populatedItemTypes.add(itemType);
           break;
         }
@@ -191,7 +198,8 @@ class FileWatcher implements Watcher {
 
       for (const itemType of this.itemTypes) {
         if (itemType.match(relativePath)) {
-          await itemType.populate(relativePath);
+          const content = await fs.readFile(absolutePath, "utf-8");
+          await itemType.populate(relativePath, content);
           populatedItemTypes.add(itemType);
           break;
         }

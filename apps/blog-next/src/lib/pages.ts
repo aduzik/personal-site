@@ -1,8 +1,11 @@
-import fs from "fs/promises";
 import path from "path";
+import { fileURLToPath } from "url";
 import matter from "gray-matter";
 
 import { createItemType, createWatcher, getItemFunctions } from "./content";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export interface ContentItem {
   title: string;
@@ -39,9 +42,10 @@ type ItemContent<TFrontmatter> = {
   excerpt?: string;
 };
 
-async function getItemContent<TFrontmatter = unknown>(relativePath: string): Promise<ItemContent<TFrontmatter>> {
-  const fileContent = await fs.readFile(relativePath, "utf-8");
-
+async function getItemContent<TFrontmatter = unknown>(
+  relativePath: string,
+  fileContent: string,
+): Promise<ItemContent<TFrontmatter>> {
   const { content, data, excerpt } = matter(fileContent, {
     excerpt_separator: "{/* excerpt */}",
     excerpt: true,
@@ -53,8 +57,12 @@ async function getItemContent<TFrontmatter = unknown>(relativePath: string): Pro
 const pages = createItemType("page", {
   rootPath: "content/pages",
   matchPath: /\.mdx?$/,
-  async getItem(relativePath: string): Promise<Page> {
-    const { content, data: frontmatter, excerpt } = await getItemContent<Page["frontmatter"]>(relativePath);
+  async getItem(relativePath: string, fileContent: string): Promise<Page> {
+    const {
+      content,
+      data: frontmatter,
+      excerpt,
+    } = await getItemContent<Page["frontmatter"]>(relativePath, fileContent);
 
     const { title, slug, heroImage } = frontmatter;
 
@@ -78,8 +86,12 @@ const pages = createItemType("page", {
 const posts = createItemType("post", {
   rootPath: "content/posts",
   matchPath: /\.mdx?$/,
-  async getItem(relativePath: string): Promise<Post> {
-    const { content, data: frontmatter, excerpt } = await getItemContent<Post["frontmatter"]>(relativePath);
+  async getItem(relativePath: string, fileContent: string): Promise<Post> {
+    const {
+      content,
+      data: frontmatter,
+      excerpt,
+    } = await getItemContent<Post["frontmatter"]>(relativePath, fileContent);
 
     return {
       title: frontmatter.title,
@@ -106,9 +118,11 @@ const posts = createItemType("post", {
   },
 });
 
+const root = path.join(__dirname, "../../../../");
+
 await createWatcher({
-  root: process.cwd(),
-  contentRoot: path.join(process.cwd(), "content"),
+  root,
+  contentRoot: path.join(root, "./content"),
 })
   .watchItem(pages)
   .watchItem(posts)

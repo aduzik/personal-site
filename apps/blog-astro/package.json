@@ -1,0 +1,38 @@
+{
+  "name": "blog-astro",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "lint": "eslint",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write ."
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.3.13",
+    "@astrojs/tailwind": "^6.0.2",
+    "@fluentui/svg-icons": "^1.1.319",
+    "@hbsnow/rehype-sectionize": "^1.0.7",
+    "@microflash/rehype-figure": "^2.1.4",
+    "@tailwindcss/typography": "^0.5.19",
+    "@tailwindcss/vite": "^4.2.0",
+    "astro": "^5.17.1",
+    "hast-util-from-html-isomorphic": "^2.0.0",
+    "hastscript": "^9.0.1",
+    "katex": "^0.16.28",
+    "prismjs": "^1.30.0",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-callouts": "^2.1.2",
+    "rehype-katex": "^7.0.1",
+    "rehype-slug": "^6.0.0",
+    "remark-math": "^6.0.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.0"
+  },
+  "devDependencies": {
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

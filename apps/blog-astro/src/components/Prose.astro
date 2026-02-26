@@ -1,0 +1,23 @@
+---
+import { twJoin, twMerge } from "tailwind-merge";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div
+  class={twMerge(
+    "prose mb-8 max-w-full prose-neutral prose-emerald dark:prose-invert prose-headings:font-serif prose-a:no-underline prose-a:after:inline-block prose-a:after:text-xs prose-a:hover:underline prose-a:link-external:link-arrow",
+    "prose-headings:scroll-mt-[calc(var(--site-header-height)+1rem)] prose-a:scroll-mt-[calc(var(--site-header-height)+1rem)] prose-h1:relative",
+    "**:data-heading-link:before:mask-link-icon **:data-heading-link:before:inline-block **:data-heading-link:before:-ml-8 **:data-heading-link:before:mr-2 **:data-heading-link:before:w-6 **:data-heading-link:before:h-6 **:data-heading-link:before:bg-current **:data-heading-link:before:opacity-0 **:data-heading-link:hover-focus:before:opacity-100 **:data-heading-link:hover-focus:before:transition-opacity **:data-heading-link:before:outline-none",
+    "prose-img:in-prose-figure:rounded prose-img:in-prose-figure:shadow-lg prose-img:in-prose-figure:shadow-neutral-500/50 dark:prose-img:in-prose-figure:shadow-black/50",
+    "prose-figure:overflow-x-auto prose-pre:overflow-x-auto prose-pre:text-xs",
+    "[counter-reset:figure] prose-figcaption:[counter-increment:figure] prose-figcaption:before:font-semibold prose-figcaption:before:content-['Figure_'counter(figure)'._']",
+    className,
+  )}
+>
+  <slot />
+</div>
